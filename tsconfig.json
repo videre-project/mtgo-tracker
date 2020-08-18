@@ -1,12 +1,23 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "esnext",
-		"types": ["node", "jest"],
-		"outDir": "build",
-		"removeComments": true,
-		"pretty": true,
-		"esModuleInterop": true
-	},
-	"exclude": ["node_modules", "build", "src/tests"]
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": ".",
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "outDir": "build",
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "paths": {
+      "*": ["node_modules/*"]
+    }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": ["node_modules", "build", "src/tests"]
 }

@@ -1,18 +1,35 @@
 {
   "name": "mtgo-tracker",
+  "productName": "mtgo-tracker",
   "version": "0.1.0",
   "homepage": "https://mtgo.codyb.co",
   "description": "A lightweight open-source MTGO tracker. ",
   "repository": "https://github.com/CodyJasonBennett/mtgo-tracker.git",
   "author": "Cody Bennett <hi@codyb.co>",
   "license": "MIT",
-  "scripts": {
-    "start": "ts-node-dev src",
-    "build": "tsc",
-    "serve": "tsc && node build",
-    "test": "jest --watchAll --verbose --testTimeout=10000",
-    "test:ci": "jest .",
-    "format": "prettier src --write"
+  "main": ".webpack/main",
+  "devDependencies": {
+    "@electron-forge/cli": "6.0.0-beta.52",
+    "@electron-forge/maker-deb": "6.0.0-beta.52",
+    "@electron-forge/maker-rpm": "6.0.0-beta.52",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.52",
+    "@electron-forge/maker-zip": "6.0.0-beta.52",
+    "@electron-forge/plugin-webpack": "6.0.0-beta.52",
+    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "css-loader": "^4.2.1",
+    "electron": "9.2.0",
+    "eslint-plugin-import": "^2.20.0",
+    "fork-ts-checker-webpack-plugin": "^5.0.14",
+    "node-loader": "^1.0.1",
+    "style-loader": "^1.2.1",
+    "ts-loader": "^8.0.2",
+    "typescript": "^3.7.0",
+    "@typescript-eslint/eslint-plugin": "^3.8.0",
+    "@typescript-eslint/parser": "^3.8.0",
+    "eslint": "^7.6.0",
+    "jest": "^26.2.2",
+    "prettier": "^2.0.5",
+    "ts-jest": "^26.1.4"
   },
   "dependencies": {
     "@types/dotenv": "^8.2.0",
@@ -20,17 +37,62 @@
     "@types/jest": "^26.0.9",
     "@types/node": "^14.0.27",
     "dotenv": "^8.2.0",
-    "glob": "^7.1.6",
-    "typescript": "^3.9.7"
+    "electron-squirrel-startup": "^1.0.0",
+    "glob": "^7.1.6"
   },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^3.8.0",
-    "@typescript-eslint/parser": "^3.8.0",
-    "eslint": "^7.6.0",
-    "jest": "^26.2.2",
-    "prettier": "^2.0.5",
-    "ts-jest": "^26.1.4",
-    "ts-node-dev": "^1.0.0-pre.56"
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts .",
+    "test": "jest --watchAll --verbose --testTimeout=10000",
+    "format": "prettier src --write"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "mtgo_tracker"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/index.html",
+                  "js": "./src/renderer.ts",
+                  "name": "main_window"
+                }
+              ]
+            }
+          }
+        ]
+      ]
+    }
   },
   "jest": {
     "testEnvironment": "node",

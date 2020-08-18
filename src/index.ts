@@ -1,51 +1,46 @@
-import { statSync, readFileSync } from 'fs'
-import { sync } from 'glob'
-import dotenv from 'dotenv'
+import { app, BrowserWindow } from 'electron'
+declare const MAIN_WINDOW_WEBPACK_ENTRY: any
 
-dotenv.config()
-
-const DEFAULT_PATH = `${process.env.USERPROFILE}/Local Settings/Application Data/Apps/2.0/Data/**/**/**/Data/AppFiles/**`
-//Declare DEFAULT_PATH as default MTGO files path; v4 automatically uses this location.
-
-function mtgoTracker(path = DEFAULT_PATH) {
-  const fileName = sync(`${path}/Match_GameLog_**-**.dat`)
-    .map(name => ({ name, ctime: statSync(name).ctime }))
-    .sort((a: any, b: any) => b.ctime - a.ctime)[0].name
-    //Find match gamelog files with a valid ID containing '-'.
-    //Replay gamelog ids use the GameID (numerical only), which are invalid matches for scanning.
-
-  const data = readFileSync(fileName, { encoding: 'utf8' })
-
-  const output = JSON.stringify(data)
-    .replace(/[^\040-\176\200-\377]/gi, '')
-    //Remove utf8 errors.
-    .split('@P')
-    .map(s => s.substring(0, s.indexOf('.')))
-    .filter(Boolean)
-    //Split and filter out instances of '@P' (when MTGO is referring to a player).
-
-    //TODO: proper regex to identify and clean cardnames.
-  //const cards
-
-  const [player1, player2] = [...new Set(output
-    .filter(s => s.includes('joined the game'))
-    .map(s => s.replace(' joined the game', '')))]
-
-  const concessions = output
-    .filter(s => s.includes('has conceded') || s.includes('has lost'))
-    .map(line => line.replace(' has conceded from the game', '').replace(' has lost the game', ''))
-
-    //TODO: handle losses due to inaction and players leaving the game.
-
-  const id = fileName.split('Match_GameLog_')[1].replace('.dat', '')
-
-  const wins = concessions.filter(l => l === player2).length
-  const losses = concessions.filter(l => l === player1).length
-  const record = `${wins}-${losses}-0`
-
-  //TODO: handle match ties due to MTGO timer; possible prompt from concession?
-
-  return { id, player1, player2, record }
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
+  app.quit()
 }
 
-export default mtgoTracker
+const createWindow = () => {
+  // Create the browser window.
+  const mainWindow = new BrowserWindow({
+    height: 600,
+    width: 800,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  })
+
+  // and load the index.html of the app.
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
+
+  // Open the DevTools.
+  mainWindow.webContents.openDevTools()
+}
+
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', createWindow)
+
+// Quit when all windows are closed, except on macOS. There, it's common
+// for applications and their menu bar to stay active until the user quits
+// explicitly with Cmd + Q.
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+app.on('activate', () => {
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow()
+  }
+})

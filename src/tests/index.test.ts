@@ -1,4 +1,4 @@
-import mtgoTracker from '../'
+import mtgoTracker from '../mtgoTracker'
 import { resolve } from 'path'
 
 describe('mtgoTracker', () => {

@@ -1,6 +1,7 @@
-import { statSync, readFileSync } from 'fs'
+import { statSync } from 'fs'
 import { sync } from 'glob'
 import dotenv from 'dotenv'
+import getMatchData from './getMatchData'
 
 dotenv.config()
 
@@ -8,43 +9,15 @@ const DEFAULT_PATH = `${process.env.USERPROFILE}/Local Settings/Application Data
 // Declare DEFAULT_PATH as default MTGO files path; v4 automatically uses this location.
 
 function mtgoTracker(path = DEFAULT_PATH) {
-  const fileName = sync(`${path}/Match_GameLog_**-**.dat`)
+  const files = sync(`${path}/Match_GameLog_**-**.dat`)
     .map(name => ({ name, ctime: statSync(name).ctime }))
-    .sort((a: any, b: any) => b.ctime - a.ctime)[0].name
+    .sort((a: any, b: any) => b.ctime - a.ctime)
     // Find match gamelog files with a valid ID containing '-'.
     // Replay gamelog ids use the GameID (numerical only), which are invalid matches for scanning.
 
-  const data = readFileSync(fileName, { encoding: 'utf8' })
+  const matches = files?.map(({ name }) => getMatchData(name)).filter(Boolean)
 
-  const output = JSON.stringify(data)
-    .replace(/[^\040-\176\200-\377]/gi, '')
-  // Remove utf8 errors.
-    .split('@P')
-    .map(s => s.substring(0, s.indexOf('.')))
-    .filter(Boolean)
-  // Split and filter out instances of '@P' (when MTGO is referring to a player).
-
-  // TODO: proper regex to identify and clean cardnames.
-
-  const [player1, player2] = [...new Set(output
-    .filter(s => s.includes('joined the game'))
-    .map(s => s.replace(' joined the game', '')))]
-
-  const concessions = output
-    .filter(s => s.includes('has conceded') || s.includes('has lost'))
-    .map(line => line.replace(' has conceded from the game', '').replace(' has lost the game', ''))
-
-  // TODO: handle losses due to inaction and players leaving the game.
-
-  const id = fileName.split('Match_GameLog_')[1].replace('.dat', '')
-
-  const wins = concessions.filter(l => l === player2).length
-  const losses = concessions.filter(l => l === player1).length
-  const record = `${wins}-${losses}-0`
-
-  // TODO: handle match ties due to MTGO timer; possible prompt from concession?
-
-  return { id, player1, player2, record }
+  return matches
 }
 
 export default mtgoTracker

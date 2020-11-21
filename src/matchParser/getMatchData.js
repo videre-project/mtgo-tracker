@@ -1,20 +1,20 @@
-import { readFileSync } from 'fs'
+const { readFileSync } = require('fs');
 
-function getMatchData({ name, ctime, mtime }: any) {
+function getMatchData({ name, ctime, mtime }) {
   try {
-    const data = readFileSync(name, { encoding: 'utf8' })
+    const data = readFileSync(name, { encoding: 'utf8' });
 
     // Remove utf8 errors and create an array of game actions
     const output = JSON.stringify(data)
       .replace(/[^\040-\176\200-\377]/gi, '') // Remove utf8 errors.
       .split('@P')
       .map(s => {
-        const hasHintText = s.includes('.).')
-        const string = s.substring(0, hasHintText ? s.indexOf('.).') : s.indexOf('.'))
+        const hasHintText = s.includes('.).');
+        const string = s.substring(0, hasHintText ? s.indexOf('.).') : s.indexOf('.'));
 
-        return hasHintText ? `${string}.)` : string
+        return hasHintText ? `${string}.)` : string;
       })
-      .filter(Boolean)
+      .filter(Boolean);
 
     // Filter seen players
     const usernames = [
@@ -23,11 +23,11 @@ function getMatchData({ name, ctime, mtime }: any) {
           .filter(s => s.includes('joined the game'))
           .map(s => s.replace(' joined the game', ''))
       ),
-    ]
-    if (usernames.length !== 2) return null
+    ];
+    if (usernames.length !== 2) return null;
 
     // Enumerate seen cards per player
-    const decks = usernames.map((username: string) => {
+    const decks = usernames.map(username => {
       const cards = output
         .filter(
           s =>
@@ -38,58 +38,58 @@ function getMatchData({ name, ctime, mtime }: any) {
             s.includes(`${username} exiles `)
         )
         .filter(Boolean)
-        .map(s => s?.split('@[')[1]?.split('@')[0])
+        .map(s => s?.split('@[')[1]?.split('@')[0]);
 
-      return cards?.filter((c, i) => cards.indexOf(c) === i)
-    })
+      return cards?.filter((c, i) => cards.indexOf(c) === i);
+    });
 
     // Calculate concessions
     const concessions = output
       .filter(s => /(has conceded|has lost)/.test(s))
       .map(line =>
         line.replace(' has conceded from the game', '').replace(' has lost the game', '')
-      )
+      );
     if (concessions.length < 2) {
       concessions.push(
         output
           .filter(s => /has left/.test(s))
           .map(line => line.replace(' has left the game', ''))
           .pop()
-      )
+      );
     }
 
-    if (concessions.length < 2) return null
+    if (concessions.length < 2) return null;
 
     // Parse match id
-    const id = name.split('Match_GameLog_')[1].replace('.dat', '')
+    const id = name.split('Match_GameLog_')[1].replace('.dat', '');
 
     // Calculate match start time
-    const date = new Date(ctime).getTime()
+    const date = new Date(ctime).getTime();
 
     // Calculate match duration
-    const duration = Math.abs(new Date(mtime).getTime() - date)
+    const duration = Math.abs(new Date(mtime).getTime() - date);
 
     // Bind match data to players
     const players = usernames.map((username, index) => {
-      const deck = decks[index]
-      const wins = concessions.filter(u => u !== username).length
-      const losses = concessions.filter(u => u === username).length
-      const record = `${wins}-${losses}`
-      const games = concessions.map(u => (u === username ? 'L' : 'W'))
+      const deck = decks[index];
+      const wins = concessions.filter(u => u !== username).length;
+      const losses = concessions.filter(u => u === username).length;
+      const record = `${wins}-${losses}`;
+      const games = concessions.map(u => (u === username ? 'L' : 'W'));
 
       return {
         username,
         deck,
         record,
         games,
-      }
-    })
+      };
+    });
 
     // Clean log to make human-readable
     const log = output
       .map(s => {
-        if (s.includes('\\')) return s.split('\\')[0]
-        if (!s.includes('@[')) return s
+        if (s.includes('\\')) return s.split('\\')[0];
+        if (!s.includes('@[')) return s;
 
         const fragments = s.split('@[').map(f =>
           f
@@ -97,11 +97,11 @@ function getMatchData({ name, ctime, mtime }: any) {
             .split('@')
             .filter(f => !f.includes(':'))
             .join('')
-        )
+        );
 
-        return `${fragments.join('')}.`
+        return `${fragments.join('')}.`;
       })
-      .join('\n')
+      .join('\n');
 
     return {
       id,
@@ -109,10 +109,10 @@ function getMatchData({ name, ctime, mtime }: any) {
       duration,
       players,
       log,
-    }
+    };
   } catch (error) {
-    console.error(`An error occured while getting match data: ${error.message}`)
+    console.error(`An error occured while getting match data: ${error.message}`);
   }
 }
 
-export default getMatchData
+module.exports = getMatchData;

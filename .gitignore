@@ -57,8 +57,4 @@ typings/
 # dotenv environment variables file
 .env
 
-# Webpack
-.webpack
-
-# Electron-Forge
-out
+build/

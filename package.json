@@ -1,111 +1,49 @@
 {
   "name": "mtgo-tracker",
   "version": "0.1.0",
-  "homepage": "https://videreproject.com",
+  "homepage": "./",
   "description": "A lightweight open-source MTGO tracker.",
   "repository": "https://github.com/videre-project/mtgo-tracker.git",
   "author": "Cody Bennett <hi@codyb.co>",
   "license": "MIT",
-  "main": ".webpack/main",
+  "main": "src/electron.js",
   "private": true,
   "devDependencies": {
-    "@electron-forge/cli": "6.0.0-beta.54",
-    "@electron-forge/maker-deb": "6.0.0-beta.54",
-    "@electron-forge/maker-rpm": "6.0.0-beta.54",
-    "@electron-forge/maker-squirrel": "6.0.0-beta.54",
-    "@electron-forge/maker-zip": "6.0.0-beta.54",
-    "@electron-forge/plugin-webpack": "6.0.0-beta.54",
-    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
-    "css-loader": "^5.0.1",
+    "@testing-library/jest-dom": "^5.11.5",
+    "@testing-library/react": "^11.1.2",
+    "@testing-library/user-event": "^12.2.2",
     "electron": "11.0.2",
-    "eslint-plugin-import": "^2.20.1",
-    "fork-ts-checker-webpack-plugin": "^6.0.3",
-    "node-loader": "^1.0.2",
-    "style-loader": "^2.0.0",
-    "ts-loader": "^8.0.11",
-    "typescript": "^4.1.2",
-    "@typescript-eslint/eslint-plugin": "^4.8.1",
-    "@typescript-eslint/parser": "^4.8.1",
+    "enzyme-adapter-react-16": "^1.15.5",
+    "enzyme": "^3.11.0",
     "eslint": "^7.14.0",
-    "jest": "^26.6.3",
     "prettier": "^2.2.0",
-    "ts-jest": "^26.4.4"
+    "react-scripts-postcss": "4.0.0-mod1",
+    "stylelint-config-recommended": "^3.0.0",
+    "stylelint": "^13.7.2"
   },
   "dependencies": {
-    "@types/dotenv": "^8.2.0",
-    "@types/glob": "^7.1.3",
-    "@types/jest": "^26.0.15",
-    "@types/node": "^14.14.9",
-    "dotenv": "^8.2.0",
-    "electron-squirrel-startup": "^1.0.0",
-    "glob": "^7.1.6"
+    "glob": "^7.1.6",
+    "jsdom": "^16.4.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   },
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts .",
-    "test": "jest --watchAll --verbose --testTimeout=10000",
+    "start": "set PORT=80 && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom --verbose",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
     "format": "prettier src --write"
   },
-  "config": {
-    "forge": {
-      "packagerConfig": {},
-      "makers": [
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {
-            "name": "mtgo_tracker"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {}
-        },
-        {
-          "name": "@electron-forge/maker-rpm",
-          "config": {}
-        }
-      ],
-      "plugins": [
-        [
-          "@electron-forge/plugin-webpack",
-          {
-            "mainConfig": "./config/webpack.main.config.js",
-            "renderer": {
-              "config": "./config/webpack.renderer.config.js",
-              "entryPoints": [
-                {
-                  "html": "./src/index.html",
-                  "js": "./src/renderer.ts",
-                  "name": "main_window"
-                }
-              ]
-            }
-          }
-        ]
-      ]
-    }
+  "reactSnap": {
+    "skipThirdPartyRequests": true,
+    "headless": true,
+    "crawl": true
   },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "coveragePathIgnorePatterns": [
-      "build"
-    ],
-    "transform": {
-      "^.+\\.ts?$": "ts-jest"
-    },
-    "moduleFileExtensions": [
-      "js",
-      "ts",
-      "json"
-    ]
-  }
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
+  "proxy": "https://api.projectvidere.com"
 }

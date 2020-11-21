@@ -24,7 +24,7 @@ function getMatchData({ name, ctime, mtime }: any) {
           .map(s => s.replace(' joined the game', ''))
       ),
     ]
-    if (usernames.length !== 2) throw new Error('Could not find players.')
+    if (usernames.length !== 2) return null
 
     // Enumerate seen cards per player
     const decks = usernames.map((username: string) => {
@@ -37,9 +37,10 @@ function getMatchData({ name, ctime, mtime }: any) {
             s.includes(`${username} discards `) ||
             s.includes(`${username} exiles `)
         )
-        .map(s => s.split('@[')[1].split('@')[0])
+        .filter(Boolean)
+        .map(s => s?.split('@[')[1]?.split('@')[0])
 
-      return cards.filter((c, i) => cards.indexOf(c) === i)
+      return cards?.filter((c, i) => cards.indexOf(c) === i)
     })
 
     // Calculate concessions
@@ -49,14 +50,15 @@ function getMatchData({ name, ctime, mtime }: any) {
         line.replace(' has conceded from the game', '').replace(' has lost the game', '')
       )
     if (concessions.length < 2) {
-      concessions.concat(
+      concessions.push(
         output
           .filter(s => /has left/.test(s))
-          .map(line => line.replace(' has left the game', ''))[0]
+          .map(line => line.replace(' has left the game', ''))
+          .pop()
       )
     }
 
-    if (concessions.length < 2) throw new Error('Could not find record.')
+    if (concessions.length < 2) return null
 
     // Parse match id
     const id = name.split('Match_GameLog_')[1].replace('.dat', '')
@@ -109,7 +111,7 @@ function getMatchData({ name, ctime, mtime }: any) {
       log,
     }
   } catch (error) {
-    console.error(`An error occured while parsing matchlog: ${error.message}`)
+    console.error(`An error occured while getting match data: ${error.message}`)
   }
 }
 

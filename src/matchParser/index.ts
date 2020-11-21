@@ -1,18 +1,32 @@
-import { statSync } from 'fs'
 import { sync } from 'glob'
+import { statSync } from 'fs'
 import getMatchData from './getMatchData'
-import combineMatchData from './combineMatchData'
+import verifyMatchData from './verifyMatchData'
 
 function matchParser(path: string) {
-  const matchLogs = sync(`${path}/Match_GameLog_**.dat`)
-    .map(name => ({ name, ...statSync(name) }))
-    .sort((a: any, b: any) => b.birthtime - a.birthtime)
+  try {
+    const mtgoLogs = sync(`${path}/Match_GameLog_**.dat`)
+      .map(name => ({ name, ...statSync(name) }))
+      .sort((a: any, b: any) => b.birthtime - a.birthtime)
+      .filter(
+        ({ ctime, mtime }) =>
+          Math.abs(new Date(mtime).getTime() - new Date(ctime).getTime()) > 0
+      )
 
-  const matchData = matchLogs?.map(file => getMatchData(file)).filter(Boolean)
+    const [recentFilters] = sync(`${path}/RecentFilters.xml`)
+      .map(name => ({ name, ...statSync(name) }))
+      .sort((a: any, b: any) => b.mtime - a.mtime)
+      .map(({ name }) => name)
+    if (!mtgoLogs || !recentFilters) throw new Error('No logs found.')
 
-  const matches = combineMatchData(matchData, `${path}/RecentFilters.xml`).filter(Boolean)
+    const matchData = mtgoLogs.map(file => getMatchData(file)).filter(Boolean)
 
-  return matches
+    const matches = verifyMatchData(matchData, recentFilters).filter(Boolean)
+
+    return matches
+  } catch (error) {
+    console.error(`An error occured while parsing matches: ${error.stack}`)
+  }
 }
 
 export default matchParser

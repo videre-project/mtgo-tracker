@@ -1,10 +1,13 @@
 import { readFileSync } from 'fs'
 
-function combineMatchData(matchLogs: any, fileName: any) {
+function verifyMatchData(matchLogs: any, fileName: any) {
   try {
-    const xml = readFileSync(fileName, { encoding: 'utf8' })
+    const xml = readFileSync(fileName, { encoding: 'utf8' }).replace(
+      '﻿<?xml version="1.0" encoding="utf-8"?>',
+      ''
+    )
 
-    const xmlDoc = new DOMParser().parseFromString(xml, 'application/xml')
+    const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml')
 
     const parse = (parent: Element, selector: string) => {
       const element = parent.querySelector(`${selector} *[IsSet=true] Value`)
@@ -23,9 +26,9 @@ function combineMatchData(matchLogs: any, fileName: any) {
           TournamentInitiationType,
         } = match.attributes as any
 
-        const name = Comments.value
-        const level = OrganizationLevel.value
-        const status = TournamentInitiationType.value
+        const name = Comments?.value
+        const level = OrganizationLevel?.value
+        const status = TournamentInitiationType?.value
 
         const format = parse(match, 'PlayFormat')
         const formatType = parse(match, 'DeckCreationStyle')
@@ -46,8 +49,8 @@ function combineMatchData(matchLogs: any, fileName: any) {
 
     return matches
   } catch (error) {
-    console.log(`An error occured while parsing match data: ${error.stack}`)
+    console.log(`An error occured while verifying match data: ${error.message}`)
   }
 }
 
-export default combineMatchData
+export default verifyMatchData

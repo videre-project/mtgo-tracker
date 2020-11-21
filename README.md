@@ -11,7 +11,7 @@ Currently, MTGO-Tracker supports the following:
 
  - [x] Matchlog filtering and auto-detect
  - [x] Match verification
- - [ ] Match history auto-update
+ - [x] Match history auto-update
 
 ## Install & run
 

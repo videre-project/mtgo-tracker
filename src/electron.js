@@ -1,11 +1,13 @@
-const { BrowserWindow, ipcMain, app } = require('electron');
+const { BrowserWindow, app } = require('electron');
 const url = require('url');
 const path = require('path');
 const { sync } = require('glob');
 const { statSync, watchFile } = require('fs');
-const matchParser = require('./matchParser');
+const parser = require('./parser');
 
-const PATH = `${process.env.USERPROFILE.replace('C:', 'C:/').replace('Users', 'Users/').replace('//', '/')}/AppData/Local/Apps/2.0/Data/**/**/**/Data/AppFiles/**`;
+const PATH = `${process.env.USERPROFILE.replace('C:', 'C:/')
+  .replace('Users', 'Users/')
+  .replace('//', '/')}/AppData/Local/Apps/2.0/Data/**/**/**/Data/AppFiles/**`;
 
 const [recentFilters] = sync(`${PATH}/RecentFilters.xml`)
   .map(name => ({ name, ...statSync(name) }))
@@ -40,7 +42,7 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 
   const syncMatches = () => {
-    const matches = matchParser(PATH);
+    const matches = parser(PATH);
 
     mainWindow.webContents.executeJavaScript(`console.info(${JSON.stringify(matches)});`);
   };

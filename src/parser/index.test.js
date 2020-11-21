@@ -1,10 +1,10 @@
-import matchParser from '../matchParser';
+import parser from '.';
 import { resolve } from 'path';
-import combinedResult from './data/combinedResult.json';
+import combinedResult from '../data/combinedResult.json';
 
 describe('mtgoTracker', () => {
   it('Gets combined match score.', () => {
-    const result = matchParser(resolve(__dirname, './matches'));
+    const result = parser(resolve(__dirname, '../data'));
 
     expect(result).toStrictEqual(combinedResult);
   });

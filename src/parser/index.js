@@ -3,7 +3,7 @@ const { statSync } = require('fs');
 const getMatchData = require('./getMatchData');
 const verifyMatchData = require('./verifyMatchData');
 
-function matchParser(path) {
+function parser(path) {
   try {
     const mtgoLogs = sync(`${path}/Match_GameLog_**.dat`)
       .map(name => ({ name, ...statSync(name) }))
@@ -29,4 +29,4 @@ function matchParser(path) {
   }
 }
 
-module.exports = matchParser;
+module.exports = parser;

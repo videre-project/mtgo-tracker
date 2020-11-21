@@ -8,7 +8,7 @@ const Home = () => {
     console.log(matches);
   }, [matches]);
 
-  return <p>Matches: {matches?.length}</p>;
+  return <p>Matches: {matches?.length || 0}</p>;
 };
 
 export default Home;

@@ -37,20 +37,24 @@ const createWindow = () => {
       webPreferences: {
         nodeIntegration: true,
         nodeIntegrationInWorker: true,
-      }
+      },
     });
   mainWindow.loadURL(startUrl);
 
   const syncMatches = () => {
     const matches = parser(PATH);
 
-    mainWindow.webContents.executeJavaScript(`window.localStorage.setItem('matches', JSON.stringify(${JSON.stringify(matches)}));`);
+    mainWindow.webContents.executeJavaScript(
+      `window.localStorage.setItem('matches', JSON.stringify(${JSON.stringify(
+        matches
+      )}));`
+    );
   };
 
   mainWindow.webContents.on('did-finish-load', () => {
     watchFile(recentFilters, syncMatches);
     syncMatches();
-  })
+  });
 
   mainWindow.webContents.openDevTools();
 

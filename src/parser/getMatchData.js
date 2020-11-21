@@ -40,7 +40,7 @@ function getMatchData({ name, ctime, mtime }) {
         .filter(Boolean)
         .map(s => s?.split('@[')[1]?.split('@')[0]);
 
-      return cards?.filter((c, i) => cards.indexOf(c) === i);
+      return cards?.filter((c, i) => cards.indexOf(c) === i)?.filter(Boolean);
     });
 
     // Calculate concessions

@@ -1,10 +1,9 @@
 {
   "name": "mtgo-tracker",
-  "productName": "mtgo-tracker",
   "version": "0.1.0",
-  "homepage": "https://mtgo.codyb.co",
+  "homepage": "https://videreproject.com",
   "description": "A lightweight open-source MTGO tracker. ",
-  "repository": "https://github.com/CodyJasonBennett/mtgo-tracker.git",
+  "repository": "https://github.com/videre-project/mtgo-tracker.git",
   "author": "Cody Bennett <hi@codyb.co>",
   "license": "MIT",
   "main": ".webpack/main",

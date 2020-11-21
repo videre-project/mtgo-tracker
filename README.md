@@ -1,8 +1,6 @@
 # MTGO Tracker
 A lightweight open-source MTGO tracker.
 
-![Site preview](/demo.png)
-
 ## Table of contents
 - [Features](#features)
 - [Install and Run](#install--run)
@@ -12,8 +10,7 @@ A lightweight open-source MTGO tracker.
 Currently, MTGO-Tracker supports the following:
 
  - [x] Gamelog filtering and auto-detect
- - [x] Conditional block removal
- - [ ] Match verification
+ - [x] Match verification
 
 ## Install & run
 
@@ -35,7 +32,7 @@ yarn test
 import path from 'path';
 import mtgoTracker from 'mtgoTracker';
 
-//Path defaults to MTGO application data
+// Path defaults to MTGO application data
 const path = path.resolve(__dirname, '../matches');
 
 console.log(mtgoTracker(path));
@@ -44,10 +41,19 @@ console.log(mtgoTracker(path));
 ### Returns
 
 ```js
-{
-  id,
-  player1,
-  player2,
-  record,
-}
+[
+  {
+    date,
+    duration,
+    format,
+    formatType,
+    id,
+    level,
+    log,
+    name,
+    players,
+    status,
+    tournamentType,
+  }
+]
 ```

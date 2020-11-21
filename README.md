@@ -4,7 +4,6 @@ A lightweight open-source MTGO tracker.
 ## Table of contents
 - [Features](#features)
 - [Install and Run](#install--run)
-- [Usage](#usage)
 
 ## Features
 Currently, MTGO-Tracker supports the following:

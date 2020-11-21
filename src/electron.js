@@ -24,6 +24,7 @@ const createWindow = () => {
     height: 600,
     width: 800,
     title: 'MTGO Tracker',
+    icon: path.join(__dirname, '/../public/icon.ico'),
     autoHideMenuBar: true,
   });
 

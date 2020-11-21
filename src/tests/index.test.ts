@@ -1,10 +1,10 @@
-import mtgoTracker from '../mtgoTracker'
+import matchParser from '../matchParser'
 import { resolve } from 'path'
 import combinedResult from './data/combinedResult.json'
 
 describe('mtgoTracker', () => {
   it('Gets combined match score.', () => {
-    const result = mtgoTracker(resolve(__dirname, '../../matches'))
+    const result = matchParser(resolve(__dirname, './matches'))
 
     expect(result).toStrictEqual(combinedResult)
   })

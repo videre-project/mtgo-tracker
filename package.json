@@ -7,6 +7,7 @@
   "author": "Cody Bennett <hi@codyb.co>",
   "license": "MIT",
   "main": ".webpack/main",
+  "private": true,
   "devDependencies": {
     "@electron-forge/cli": "6.0.0-beta.54",
     "@electron-forge/maker-deb": "6.0.0-beta.54",
@@ -94,7 +95,7 @@
     }
   },
   "jest": {
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "coveragePathIgnorePatterns": [
       "build"
     ],

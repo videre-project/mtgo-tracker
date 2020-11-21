@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
-import mtgoTracker from './mtgoTracker'
+import matchParser from './matchParser'
 import './index.css'
 
 dotenv.config()
@@ -9,7 +9,7 @@ const INPUT_PATH = `${process.env.USERPROFILE}/Local Settings/Application Data/A
 const APPLICATION_PATH = `${process.env.USERPROFILE}/AppData/Roaming/mtgo-tracker`
 const OUTPUT_PATH = `${APPLICATION_PATH}/matches`
 
-const matches = mtgoTracker(INPUT_PATH)
+const matches = matchParser(INPUT_PATH)
 console.log(matches)
 
 if (!existsSync(APPLICATION_PATH)) mkdirSync(APPLICATION_PATH)

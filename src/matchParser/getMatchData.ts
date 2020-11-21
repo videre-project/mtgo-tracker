@@ -17,20 +17,25 @@ function getMatchData({ name, ctime, mtime }: any) {
       .filter(Boolean)
 
     // Filter seen players
-    const usernames = [...new Set(output
-      .filter(s => s.includes('joined the game'))
-      .map(s => s.replace(' joined the game', '')))]
-    if (usernames.length !== 2) throw new Error('Couldn\'t find players.')
+    const usernames = [
+      ...new Set(
+        output
+          .filter(s => s.includes('joined the game'))
+          .map(s => s.replace(' joined the game', ''))
+      ),
+    ]
+    if (usernames.length !== 2) throw new Error('Could not find players.')
 
     // Enumerate seen cards per player
     const decks = usernames.map((username: string) => {
       const cards = output
-        .filter(s =>
-          s.includes(`${username} plays `) ||
-          s.includes(`${username} casts `) ||
-          s.includes(`${username} reveals `) ||
-          s.includes(`${username} discards `) ||
-          s.includes(`${username} exiles `)
+        .filter(
+          s =>
+            s.includes(`${username} plays `) ||
+            s.includes(`${username} casts `) ||
+            s.includes(`${username} reveals `) ||
+            s.includes(`${username} discards `) ||
+            s.includes(`${username} exiles `)
         )
         .map(s => s.split('@[')[1].split('@')[0])
 
@@ -40,18 +45,18 @@ function getMatchData({ name, ctime, mtime }: any) {
     // Calculate concessions
     const concessions = output
       .filter(s => /(has conceded|has lost)/.test(s))
-      .map(line => line
-        .replace(' has conceded from the game', '')
-        .replace(' has lost the game', '')
+      .map(line =>
+        line.replace(' has conceded from the game', '').replace(' has lost the game', '')
       )
     if (concessions.length < 2) {
-      concessions.concat(output
-        .filter(s => /has left/.test(s))
-        .map(line => line.replace(' has left the game', ''))[0]
+      concessions.concat(
+        output
+          .filter(s => /has left/.test(s))
+          .map(line => line.replace(' has left the game', ''))[0]
       )
     }
 
-    if (concessions.length < 2) throw new Error('Couldn\'t find record.')
+    if (concessions.length < 2) throw new Error('Could not find record.')
 
     // Parse match id
     const id = name.split('Match_GameLog_')[1].replace('.dat', '')
@@ -68,7 +73,7 @@ function getMatchData({ name, ctime, mtime }: any) {
       const wins = concessions.filter(u => u !== username).length
       const losses = concessions.filter(u => u === username).length
       const record = `${wins}-${losses}`
-      const games = concessions.map(u => u === username ? 'L' : 'W')
+      const games = concessions.map(u => (u === username ? 'L' : 'W'))
 
       return {
         username,
@@ -79,19 +84,22 @@ function getMatchData({ name, ctime, mtime }: any) {
     })
 
     // Clean log to make human-readable
-    const log = output.map(s => {
-      if (s.includes('\\')) return s.split('\\')[0]
-      if (!s.includes('@[')) return s
+    const log = output
+      .map(s => {
+        if (s.includes('\\')) return s.split('\\')[0]
+        if (!s.includes('@[')) return s
 
-      const fragments = s.split('@[').map(f => f
-        .replace('@]', '@')
-        .split('@')
-        .filter(f => !f.includes(':'))
-        .join('')
-      )
+        const fragments = s.split('@[').map(f =>
+          f
+            .replace('@]', '@')
+            .split('@')
+            .filter(f => !f.includes(':'))
+            .join('')
+        )
 
-      return `${fragments.join('')}.`
-    }).join('\n')
+        return `${fragments.join('')}.`
+      })
+      .join('\n')
 
     return {
       id,

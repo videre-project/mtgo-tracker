@@ -17,7 +17,11 @@ function combineMatchData(matchLogs: any, fileName: any) {
         const gameData = matchLogs[index]
         if (!gameData) return null
 
-        const { Comments, OrganizationLevel, TournamentInitiationType } = (match.attributes as any)
+        const {
+          Comments,
+          OrganizationLevel,
+          TournamentInitiationType,
+        } = match.attributes as any
 
         const name = Comments.value
         const level = OrganizationLevel.value
@@ -34,7 +38,7 @@ function combineMatchData(matchLogs: any, fileName: any) {
           format,
           formatType,
           tournamentType,
-          ...gameData
+          ...gameData,
         }
       })
       .filter(Boolean)

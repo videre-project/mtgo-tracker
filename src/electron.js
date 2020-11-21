@@ -14,8 +14,6 @@ const [recentFilters] = sync(`${PATH}/RecentFilters.xml`)
   .sort((a, b) => b.mtime - a.mtime)
   .map(({ name }) => name);
 
-process.env.ELECTRON_ENABLE_SECURITY_WARNINGS = false;
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -36,19 +34,25 @@ const createWindow = () => {
       pathname: path.join(__dirname, '/../build/index.html'),
       protocol: 'file:',
       slashes: true,
+      webPreferences: {
+        nodeIntegration: true,
+        nodeIntegrationInWorker: true,
+      }
     });
   mainWindow.loadURL(startUrl);
-
-  mainWindow.webContents.openDevTools();
 
   const syncMatches = () => {
     const matches = parser(PATH);
 
-    mainWindow.webContents.executeJavaScript(`console.info(${JSON.stringify(matches)});`);
+    mainWindow.webContents.executeJavaScript(`window.localStorage.setItem('matches', JSON.stringify(${JSON.stringify(matches)}));`);
   };
 
-  watchFile(recentFilters, syncMatches);
-  syncMatches();
+  mainWindow.webContents.on('did-finish-load', () => {
+    watchFile(recentFilters, syncMatches);
+    syncMatches();
+  })
+
+  mainWindow.webContents.openDevTools();
 
   // Dereference the window object
   mainWindow.on('closed', () => (mainWindow = null));

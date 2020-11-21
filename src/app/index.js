@@ -1,7 +1,7 @@
-import { Suspense, useEffect, createContext, useReducer, Fragment } from 'react';
+import { lazy, Suspense, useEffect, createContext, useReducer, Fragment } from 'react';
+import classNames from 'classnames';
 import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import { Transition, TransitionGroup } from 'react-transition-group';
-import classNames from 'classnames';
 import ThemeProvider from 'components/ThemeProvider';
 import VisuallyHidden from 'components/VisuallyHidden';
 import { tokens } from 'components/ThemeProvider/theme';
@@ -13,6 +13,8 @@ import prerender from 'utils/prerender';
 import './reset.css';
 import './index.css';
 
+const Home = lazy(() => import('pages/Home'));
+
 export const AppContext = createContext();
 export const TransitionContext = createContext();
 
@@ -20,6 +22,7 @@ const repoPrompt = `\u00A9 2019-${new Date().getFullYear()} Cody Bennett\n\nChec
 
 const App = () => {
   const [storedTheme] = useLocalStorage('theme', 'light');
+  const [storedMatches] = useLocalStorage('matches');
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
@@ -33,6 +36,10 @@ const App = () => {
   useEffect(() => {
     dispatch({ type: 'setTheme', value: storedTheme });
   }, [storedTheme]);
+
+  useEffect(() => {
+    dispatch({ type: 'setMatches', value: storedMatches });
+  }, [storedMatches]);
 
   return (
     <AppContext.Provider value={{ ...state, dispatch }}>
@@ -65,7 +72,7 @@ const AppRoutes = () => {
               <div className={classNames('app__page', `app__page--${status}`)}>
                 <Suspense fallback={<Fragment />}>
                   <Switch location={location}>
-                    <Route render={() => <p>MTGO Tracker</p>} />
+                    <Route component={Home} />
                   </Switch>
                 </Suspense>
               </div>

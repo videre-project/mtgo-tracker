@@ -1,5 +1,6 @@
 export const initialState = {
   theme: 'light',
+  matches: null,
 };
 
 export function reducer(state, action) {
@@ -12,6 +13,8 @@ export function reducer(state, action) {
       const newThemeId = state.theme === 'light' ? 'dark' : 'light';
       return { ...state, theme: newThemeId };
     }
+    case 'setMatches':
+      return { ...state, matches: value };
     default:
       throw new Error();
   }

@@ -36,13 +36,12 @@ const createWindow = () => {
 
   // Connect client to app
   const startUrl =
-    process.env.NODE_ENV === 'production'
-      ? url.format({
-          pathname: path.join(__dirname, '/../build/index.html'),
-          protocol: 'file:',
-          slashes: true,
-        })
-      : 'http://localhost:3000';
+    process.env.ELECTRON_START_URL ||
+    url.format({
+      pathname: path.join(__dirname, '/../build/index.html'),
+      protocol: 'file:',
+      slashes: true,
+    });
   mainWindow.loadURL(startUrl);
 
   // Send MTGO match data to app

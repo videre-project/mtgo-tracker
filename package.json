@@ -4,7 +4,7 @@
   "homepage": "./",
   "description": "A lightweight open-source MTGO tracker.",
   "repository": "https://github.com/videre-project/mtgo-tracker.git",
-  "author": "Cody Bennett <hi@codyb.co>",
+  "author": "Videre Project <support@videreproject.com>",
   "license": "MIT",
   "main": "src/electron.js",
   "private": true,
@@ -37,7 +37,7 @@
     "react-transition-group": "^4.4.1"
   },
   "scripts": {
-    "start": "concurrently \"set BROWSER=none && react-scripts start\" \"wait-on http://localhost:3000 && set ELECTRON_DISABLE_SECURITY_WARNINGS=true && electron .\"",
+    "start": "concurrently \"set BROWSER=none && react-scripts start\" \"wait-on http://localhost:3000 && set ELECTRON_DISABLE_SECURITY_WARNINGS=true && set ELECTRON_START_URL=http://localhost:3000 && electron .\"",
     "build": "react-scripts build",
     "postbuild": "react-snap",
     "package": "rimraf dist && electron-builder",
@@ -61,7 +61,10 @@
   "build": {
     "appId": "com.videreproject.mtgo-tracker",
     "productName": "MTGO Tracker",
-    "copyright": "© 2019-2020 Videre Project"
+    "copyright": "Videre Project",
+    "directories": {
+      "buildResources": "public"
+    }
   },
   "proxy": "https://api.projectvidere.com"
 }

@@ -18,7 +18,7 @@ const Home = lazy(() => import('pages/Home'));
 export const AppContext = createContext();
 export const TransitionContext = createContext();
 
-const repoPrompt = `\u00A9 2019-${new Date().getFullYear()} Cody Bennett\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker`;
+const repoPrompt = `\u00A9 2019-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker`;
 
 const App = () => {
   const [storedTheme] = useLocalStorage('theme', 'light');

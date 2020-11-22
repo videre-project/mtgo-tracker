@@ -21,8 +21,8 @@ let mainWindow;
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 640,
+    width: 1024,
     title: 'MTGO Tracker',
     icon: path.join(__dirname, '/../public/icon.ico'),
     autoHideMenuBar: true,

@@ -14,12 +14,14 @@
     "@testing-library/user-event": "^12.2.2",
     "concurrently": "^5.3.0",
     "electron": "11.0.2",
+    "electron-builder": "^22.9.1",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.5",
     "eslint": "^7.14.0",
     "prettier": "^2.2.0",
     "react-scripts-postcss": "4.0.0-mod1",
     "react-snap": "^1.23.0",
+    "rimraf": "^3.0.2",
     "source-map-explorer": "^2.5.0",
     "stylelint": "^13.7.2",
     "stylelint-config-recommended": "^3.0.0",
@@ -38,6 +40,7 @@
     "start": "concurrently \"set BROWSER=none && react-scripts start\" \"wait-on http://localhost:3000 && set ELECTRON_DISABLE_SECURITY_WARNINGS=true && electron .\"",
     "build": "react-scripts build",
     "postbuild": "react-snap",
+    "package": "rimraf dist && electron-builder",
     "test": "react-scripts test --env=jsdom --watchAll --verbose --silent",
     "eject": "react-scripts eject",
     "format": "prettier src --write",
@@ -55,5 +58,10 @@
     "not dead",
     "not op_mini all"
   ],
+  "build": {
+    "appId": "com.videreproject.mtgo-tracker",
+    "productName": "MTGO Tracker",
+    "copyright": "© 2019-2020 Videre Project"
+  },
   "proxy": "https://api.projectvidere.com"
 }

@@ -30,3 +30,15 @@ To run tests:
 ```bash
 yarn test
 ```
+
+To get a production-ready build
+
+```bash
+yarn build
+```
+
+To package application for install
+
+```bash
+yarn package
+```

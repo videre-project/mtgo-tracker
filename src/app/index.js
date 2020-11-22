@@ -1,6 +1,5 @@
-import { lazy, Suspense, useEffect, createContext, useReducer, Fragment } from 'react';
+import { lazy, Suspense, useState, useEffect, createContext, useReducer, Fragment } from 'react';
 import classNames from 'classnames';
-import { BrowserRouter, Switch, Route, useLocation } from 'react-router-dom';
 import { Transition, TransitionGroup } from 'react-transition-group';
 import ThemeProvider from 'components/ThemeProvider';
 import VisuallyHidden from 'components/VisuallyHidden';
@@ -14,6 +13,7 @@ import './reset.css';
 import './index.css';
 
 const Home = lazy(() => import('pages/Home'));
+const Matches = lazy(() => import('pages/Matches'));
 
 export const AppContext = createContext();
 export const TransitionContext = createContext();
@@ -21,6 +21,7 @@ export const TransitionContext = createContext();
 const repoPrompt = `\u00A9 2019-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker`;
 
 const App = () => {
+  const [location, setLocation] = useState('/');
   const [storedTheme] = useLocalStorage('theme', 'light');
   const [storedMatches] = useLocalStorage('matches');
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -29,8 +30,6 @@ const App = () => {
     if (!prerender) {
       console.info(`${repoPrompt}\n\n`);
     }
-
-    window.history.scrollRestoration = 'manual';
   }, []);
 
   useEffect(() => {
@@ -42,28 +41,14 @@ const App = () => {
   }, [storedMatches]);
 
   return (
-    <AppContext.Provider value={{ ...state, dispatch }}>
+    <AppContext.Provider value={{ ...state, dispatch, setLocation }}>
       <ThemeProvider themeId={state.theme}>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </ThemeProvider>
-    </AppContext.Provider>
-  );
-};
-
-const AppRoutes = () => {
-  const location = useLocation();
-  const { pathname } = location;
-
-  return (
-    <Fragment>
       <VisuallyHidden showOnFocus as="a" className="skip-to-main" href="#MainContent">
         Skip to main content
       </VisuallyHidden>
       <TransitionGroup component="main" className="app" tabIndex={-1} id="MainContent">
         <Transition
-          key={pathname}
+          key={location}
           timeout={msToNum(tokens.base.durationS)}
           onEnter={reflow}
         >
@@ -71,16 +56,16 @@ const AppRoutes = () => {
             <TransitionContext.Provider value={{ status }}>
               <div className={classNames('app__page', `app__page--${status}`)}>
                 <Suspense fallback={<Fragment />}>
-                  <Switch location={location}>
-                    <Route component={Home} />
-                  </Switch>
+                  {location === '/' && <Home />}
+                  {location === '/matches' && <Matches />}
                 </Suspense>
               </div>
             </TransitionContext.Provider>
           )}
         </Transition>
       </TransitionGroup>
-    </Fragment>
+      </ThemeProvider>
+    </AppContext.Provider>
   );
 };
 

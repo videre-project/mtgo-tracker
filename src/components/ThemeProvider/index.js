@@ -127,12 +127,16 @@ export const tokenStyles = `
 
   ${createMediaTokenProperties()}
 
-  .light {
-    ${createThemeProperties(theme.light)}
+  @media screen and (prefers-color-scheme: light), screen and (prefers-color-scheme: no-preference) {
+    body {
+      ${createThemeProperties(theme.light)}
+    }
   }
 
-  .dark {
-    ${createThemeProperties(theme.dark)}
+  @media screen and (prefers-color-scheme: dark) {
+    body {
+      ${createThemeProperties(theme.dark)}
+    }
   }
 `;
 

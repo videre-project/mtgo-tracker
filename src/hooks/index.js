@@ -8,7 +8,6 @@ import useParallax from './useParallax';
 import usePrefersReducedMotion from './usePrefersReducedMotion';
 import usePrevious from './usePrevious';
 import useRouteTransition from './useRouteTransition';
-import useScrollRestore from './useScrollRestore';
 import useWindowSize from './useWindowSize';
 
 export {
@@ -22,6 +21,5 @@ export {
   usePrefersReducedMotion,
   usePrevious,
   useRouteTransition,
-  useScrollRestore,
   useWindowSize,
 };

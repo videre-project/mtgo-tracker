@@ -1,14 +1,5 @@
-import React, { useEffect } from 'react';
-import { useAppContext } from 'hooks';
+import Link from 'components/Link';
 
-const Home = () => {
-  const { matches } = useAppContext();
-
-  useEffect(() => {
-    console.log(matches);
-  }, [matches]);
-
-  return <p>Matches: {matches?.length || 0}</p>;
-};
+const Home = () => <Link href="/matches">Match History</Link>;
 
 export default Home;

@@ -9,7 +9,6 @@
 body {
   font-family: var(--fontStack);
   font-weight: var(--fontWeightRegular);
-  font-synthesis: none;
   text-rendering: optimizeLegibility;
   background: rgb(var(--rgbBackground));
   color: var(--colorTextBody);

@@ -1,4 +1,4 @@
-import { pxToRem } from 'utils/style';
+import { pxToRem, media } from 'utils/style';
 
 const systemFontStack =
   'system-ui, -apple-system, BlinkMacSystemFont, San Francisco, Roboto, Segoe UI, Ubuntu, Helvetica Neue, sans-serif';
@@ -96,24 +96,12 @@ const tokensMobileSmall = {
   fontSizeH4: pxToRem(20),
 };
 
-// Tokens that change based on theme
-const light = {
-  themeId: 'light',
-  rgbBackground: '255 255 255',
+export const theme = {
+  rgbBackground: '238 242 246',
   rgbAccent: '32 60 75',
   rgbText: '32 60 75',
   colorTextTitle: 'rgb(var(--rgbText) / 1)',
   colorTextBody: 'rgb(var(--rgbText) / 0.7)',
-  colorTextLight: 'rgb(var(--rgbText) / 0.6)',
-};
-
-const dark = {
-  themeId: 'dark',
-  rgbBackground: '32 60 75',
-  rgbAccent: '255 255 255',
-  rgbText: '255 255 255',
-  colorTextTitle: 'rgb(var(--rgbText) / 1)',
-  colorTextBody: 'rgb(var(--rgbText) / 0.8)',
   colorTextLight: 'rgb(var(--rgbText) / 0.6)',
 };
 
@@ -126,4 +114,53 @@ export const tokens = {
   mobileS: tokensMobileSmall,
 };
 
-export const theme = { dark, light };
+export const tokenStyles = `
+  :root {
+    ${createThemeProperties(tokens.base)}
+  }
+
+  ${createMediaTokenProperties()}
+
+  body {
+    ${createThemeProperties(theme)}
+  }
+`;
+
+/**
+ * Transform theme token objects into CSS custom property strings
+ */
+export function createThemeProperties(theme) {
+  return Object.keys(theme)
+    .map(key => `--${key}: ${theme[key]};`)
+    .join('\n');
+}
+
+/**
+ * Transform theme tokens into a React CSSProperties object
+ */
+export function createThemeStyleObject(theme) {
+  let style = {};
+
+  for (const key of Object.keys(theme)) {
+    style[`--${key}`] = theme[key];
+  }
+
+  return style;
+}
+
+/**
+ * Generate media queries for tokens
+ */
+export function createMediaTokenProperties() {
+  return Object.keys(media)
+    .map(key => {
+      return `
+        @media (max-width: ${media[key]}px) {
+          :root {
+            ${createThemeProperties(tokens[key])}
+          }
+        }
+      `;
+    })
+    .join('\n');
+}

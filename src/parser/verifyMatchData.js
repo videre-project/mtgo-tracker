@@ -1,36 +1,46 @@
 const { readFileSync } = require('fs');
 const { JSDOM } = require('jsdom');
 
+/**
+ * Reads properties from XML parent
+ */
+function parse(parent, selector) {
+  const element = parent.querySelector(`${selector} *[IsSet=true] Value`);
+
+  return element ? element.textContent : null;
+}
+
+/**
+ * Syncs match data with RecentFilters.xml
+ */
 function verifyMatchData(matchLogs, fileName) {
   try {
+    // Return XML string, removing duplicate headers
     const xml = readFileSync(fileName, { encoding: 'utf8' }).replace(
       '﻿<?xml version="1.0" encoding="utf-8"?>',
       ''
     );
 
+    // Create a queryable document from parsed XML
     const xmlDoc = new JSDOM(xml, { contentType: 'text/xml' }).window.document;
-
-    const parse = (parent, selector) => {
-      const element = parent.querySelector(`${selector} *[IsSet=true] Value`);
-
-      return element ? element.textContent : null;
-    };
 
     const matches = Array.from(xmlDoc.getElementsByTagName('PersistedFilter'))
       .map((match, index) => {
+        // Sync PersistedFilter with match data
         const gameData = matchLogs[index];
         if (!gameData) return null;
 
+        // Parse tournament props
         const {
           Comments,
           OrganizationLevel,
           TournamentInitiationType,
         } = match.attributes;
-
         const name = Comments?.value;
         const level = OrganizationLevel?.value;
         const status = TournamentInitiationType?.value;
 
+        // Parse format props
         const format = parse(match, 'PlayFormat');
         const formatType = parse(match, 'DeckCreationStyle');
         const tournamentType = parse(match, 'TournamentStructureValue');
@@ -46,6 +56,7 @@ function verifyMatchData(matchLogs, fileName) {
         };
       })
       .filter(Boolean)
+      // Remove replays from match history
       .filter(({ id }) => id.includes('-'));
 
     return matches;

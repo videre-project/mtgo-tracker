@@ -5,10 +5,12 @@ const { sync } = require('glob');
 const { statSync, watchFile } = require('fs');
 const parser = require('./parser');
 
+// Set default path to Windows MTGO path, correct userprofile
 const PATH = `${process.env.USERPROFILE.replace('C:', 'C:/')
   .replace('Users', 'Users/')
   .replace('//', '/')}/AppData/Local/Apps/2.0/Data/**/**/**/Data/AppFiles/**`;
 
+// Select active RecentFilters.xml
 const [recentFilters] = sync(`${PATH}/RecentFilters.xml`)
   .map(name => ({ name, ...statSync(name) }))
   .sort((a, b) => b.mtime - a.mtime)
@@ -26,21 +28,22 @@ const createWindow = () => {
     title: 'MTGO Tracker',
     icon: path.join(__dirname, '/../public/icon.ico'),
     autoHideMenuBar: true,
+    webPreferences: {
+      contextIsolation: true,
+    },
   });
 
+  // Load production app
   const startUrl =
     process.env.ELECTRON_START_URL ||
     url.format({
       pathname: path.join(__dirname, '/../build/index.html'),
       protocol: 'file:',
       slashes: true,
-      webPreferences: {
-        nodeIntegration: true,
-        nodeIntegrationInWorker: true,
-      },
     });
   mainWindow.loadURL(startUrl);
 
+  // Send MTGO match data to app
   const syncMatches = () => {
     const matches = parser(PATH);
 
@@ -51,6 +54,7 @@ const createWindow = () => {
     );
   };
 
+  // Init MTGO daemon
   mainWindow.webContents.on('did-finish-load', () => {
     watchFile(recentFilters, syncMatches);
     syncMatches();

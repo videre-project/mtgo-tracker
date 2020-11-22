@@ -59,9 +59,6 @@ const ThemeProvider = ({
       {isRootProvider && (
         <Fragment>
           <Helmet>
-            <link rel="preload" href={RobotoRegular} as="font" crossorigin="" />
-            <link rel="preload" href={RobotoMedium} as="font" crossorigin="" />
-            <link rel="preload" href={RobotoBold} as="font" crossorigin="" />
             <style>{fontStyles}</style>
             <style>{tokenStyles}</style>
           </Helmet>

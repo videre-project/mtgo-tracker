@@ -1,5 +1,8 @@
 const { readFileSync } = require('fs');
 
+/**
+ * Parses match data from file
+ */
 function getMatchData({ name, ctime, mtime }) {
   try {
     const data = readFileSync(name, { encoding: 'utf8' });

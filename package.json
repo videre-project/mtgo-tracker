@@ -18,6 +18,8 @@
     "eslint": "^7.14.0",
     "prettier": "^2.2.0",
     "react-scripts-postcss": "4.0.0-mod1",
+    "react-snap": "^1.23.0",
+    "source-map-explorer": "^2.5.0",
     "stylelint": "^13.7.2",
     "stylelint-config-recommended": "^3.0.0"
   },
@@ -34,15 +36,19 @@
   "scripts": {
     "start": "set PORT=80 && react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom --verbose",
+    "postbuild": "react-snap",
+    "test": "react-scripts test --env=jsdom --watchAll --verbose --silent",
     "eject": "react-scripts eject",
-    "electron": "electron .",
-    "format": "prettier src --write"
+    "electron": "set ELECTRON_DISABLE_SECURITY_WARNINGS=true && electron .",
+    "format": "prettier src --write",
+    "lint": "eslint src --fix",
+    "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "reactSnap": {
     "skipThirdPartyRequests": true,
     "headless": true,
-    "crawl": true
+    "crawl": true,
+    "publicPath": "/"
   },
   "browserslist": [
     ">0.2%",

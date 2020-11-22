@@ -1,4 +1,12 @@
-import { lazy, Suspense, useState, useEffect, createContext, useReducer, Fragment } from 'react';
+import {
+  lazy,
+  Suspense,
+  useState,
+  useEffect,
+  createContext,
+  useReducer,
+  Fragment,
+} from 'react';
 import classNames from 'classnames';
 import { Helmet } from 'react-helmet';
 import { Transition, TransitionGroup } from 'react-transition-group';
@@ -76,16 +84,12 @@ const App = () => {
         Skip to main content
       </VisuallyHidden>
       <TransitionGroup component="main" className="app" tabIndex={-1} id="MainContent">
-        <Transition
-          key={location}
-          timeout={msToNum(tokens.base.durationS)}
-          onEnter={reflow}
-        >
+        <Transition key={location} timeout={msToNum(tokens.durationS)} onEnter={reflow}>
           {status => (
             <TransitionContext.Provider value={{ status }}>
               <div className={classNames('app__page', `app__page--${status}`)}>
                 <Suspense fallback={<Fragment />}>
-                  {location === '/' && <Home />}
+                  {location === '/' && <Splash />}
                   {location === '/matches' && <Matches />}
                 </Suspense>
               </div>

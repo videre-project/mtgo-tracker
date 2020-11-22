@@ -1,5 +1,4 @@
-import { useState, useCallback } from 'react';
-import { useInterval } from '.';
+import { useState, useCallback, useEffect } from 'react';
 
 function useLocalStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
@@ -25,15 +24,20 @@ function useLocalStorage(key, initialValue) {
     [key, storedValue]
   );
 
-  useInterval(() => {
-    const data = window.localStorage.getItem(key);
-    const value = data && JSON.parse(data);
+  const handleStorage = useCallback(
+    event => {
+      if (event.key === key && event.newValue !== storedValue) {
+        setValue(event.newValue || initialValue);
+      }
+    },
+    [key, storedValue, setValue, initialValue]
+  );
 
-    const changes = storedValue?.toString() !== value?.toString();
-    if (!changes) return;
+  useEffect(() => {
+    window.addEventListener('storage', handleStorage);
 
-    if (changes) return setStoredValue(value);
-  }, 3000);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [handleStorage]);
 
   return [storedValue, setValue];
 }

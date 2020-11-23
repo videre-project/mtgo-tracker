@@ -44,7 +44,7 @@ const fontStyles = `
   }
 `;
 
-const repoPrompt = `\u00A9 2019-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker`;
+const repoPrompt = `\u00A9 2018-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker`;
 
 const App = () => {
   const [storedLocation] = useLocalStorage('location', '/');

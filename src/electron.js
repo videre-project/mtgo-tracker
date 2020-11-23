@@ -61,8 +61,6 @@ const createWindow = () => {
     syncMatches();
   });
 
-  mainWindow.webContents.openDevTools();
-
   // Dereference the window object
   mainWindow.on('closed', () => (mainWindow = null));
 };

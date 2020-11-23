@@ -12,6 +12,10 @@
   font-size: var(--fontSizeH2);
 }
 
+.heading--level-3 {
+  font-size: var(--fontSizeH3);
+}
+
 .heading--align-auto {
   text-align: inherit;
 }

@@ -1,12 +1,4 @@
-import {
-  lazy,
-  Suspense,
-  useState,
-  useEffect,
-  createContext,
-  useReducer,
-  Fragment,
-} from 'react';
+import { lazy, Suspense, useEffect, createContext, useReducer, Fragment } from 'react';
 import classNames from 'classnames';
 import { Helmet } from 'react-helmet';
 import { Transition, TransitionGroup } from 'react-transition-group';
@@ -55,16 +47,21 @@ const fontStyles = `
 const repoPrompt = `\u00A9 2019-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker`;
 
 const App = () => {
-  const [location, setLocation] = useState('/');
+  const [storedLocation] = useLocalStorage('location', '/');
   const [storedTheme] = useLocalStorage('theme', 'light');
-  const [storedMatches] = useLocalStorage('matches');
+  const [storedMatches] = useLocalStorage('matches', []);
   const [state, dispatch] = useReducer(reducer, initialState);
+  const { location } = state;
 
   useEffect(() => {
     if (!prerender) {
       console.info(`${repoPrompt}\n\n`);
     }
   }, []);
+
+  useEffect(() => {
+    dispatch({ type: 'setLocation', value: storedLocation });
+  }, [storedLocation]);
 
   useEffect(() => {
     dispatch({ type: 'setTheme', value: storedTheme });
@@ -75,7 +72,7 @@ const App = () => {
   }, [storedMatches]);
 
   return (
-    <AppContext.Provider value={{ ...state, dispatch, setLocation }}>
+    <AppContext.Provider value={{ ...state, dispatch }}>
       <Helmet>
         <style>{fontStyles}</style>
         <style>{tokenStyles}</style>

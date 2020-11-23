@@ -11,13 +11,13 @@ const Link = ({ rel, target, children, secondary, className, href, as, ...rest }
   const isAnchor = href?.includes('://') || href?.[0] === '#' || isValidExtension;
   const relValue = rel || isAnchor ? 'noreferrer noopener' : undefined;
   const targetValue = target || isAnchor ? '_blank' : undefined;
-  const { setLocation } = useAppContext();
+  const { dispatch } = useAppContext();
 
   const onClick = event => {
     event.preventDefault();
     event.stopPropagation();
 
-    return setLocation(href);
+    return dispatch({ type: 'setLocation', value: href });
   };
 
   return (

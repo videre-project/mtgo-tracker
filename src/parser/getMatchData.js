@@ -29,21 +29,17 @@ function getMatchData({ name, ctime, mtime }) {
     ];
     if (usernames.length !== 2) return null;
 
+    // Filter seen cards
+    const cards = output.filter(s => /(plays|casts|reveals|discards|exiles)/.test(s));
+
     // Enumerate seen cards per player
     const decks = usernames.map(username => {
-      const cards = output
-        .filter(
-          s =>
-            s.includes(`${username} plays `) ||
-            s.includes(`${username} casts `) ||
-            s.includes(`${username} reveals `) ||
-            s.includes(`${username} discards `) ||
-            s.includes(`${username} exiles `)
-        )
+      const deck = cards
+        .filter(s => s.includes(username))
         .filter(Boolean)
         .map(s => s?.split('@[')[1]?.split('@')[0]);
 
-      return cards?.filter((c, i) => cards.indexOf(c) === i)?.filter(Boolean);
+      return deck?.filter((c, i) => deck.indexOf(c) === i)?.filter(Boolean);
     });
 
     // Calculate concessions

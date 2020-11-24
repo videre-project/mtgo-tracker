@@ -30,7 +30,6 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "glob": "^7.1.6",
-    "jsdom": "^16.4.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",

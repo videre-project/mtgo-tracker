@@ -1,5 +1,4 @@
 const { readFileSync } = require('fs');
-const { JSDOM } = require('jsdom');
 
 /**
  * Reads properties from XML parent
@@ -15,14 +14,11 @@ function parse(parent, selector) {
  */
 function verifyMatchData(matchLogs, fileName) {
   try {
-    // Return XML string, removing duplicate headers
-    const xml = readFileSync(fileName, { encoding: 'utf8' }).replace(
-      '﻿<?xml version="1.0" encoding="utf-8"?>',
-      ''
-    );
+    // Return XML string from RecentFilters.xml
+    const xml = readFileSync(fileName, { encoding: 'utf8' });
 
     // Create a queryable document from parsed XML
-    const xmlDoc = new JSDOM(xml, { contentType: 'text/xml' }).window.document;
+    const xmlDoc = new DOMParser().parseFromString(xml, 'application/xml');
 
     const matches = Array.from(xmlDoc.getElementsByTagName('PersistedFilter'))
       .map((match, index) => {

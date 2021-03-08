@@ -40,7 +40,7 @@
     "start": "concurrently \"set BROWSER=none && react-scripts start\" \"wait-on http://localhost:3000 && set ELECTRON_START_URL=http://localhost:3000 && electron .\"",
     "build": "react-scripts build",
     "postbuild": "react-snap && npm run package",
-    "package": "rimraf dist && electron-builder && rimraf build",
+    "package": "rimraf dist && electron-builder --windows && rimraf build",
     "test": "react-scripts test --env=jsdom --watchAll --verbose",
     "eject": "react-scripts eject",
     "lint": "eslint src && prettier src --check",

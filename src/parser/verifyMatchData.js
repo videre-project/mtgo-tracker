@@ -19,14 +19,13 @@ function verifyMatchData(matchLogs, fileName) {
     const xml = readFileSync(fileName, { encoding: 'utf8' });
 
     // Create a queryable document from parsed XML
-    const { window } = new JSDOM('');
-    const xmlDoc = new window.DOMParser().parseFromString(xml, 'application/xml');
+    const xmlDoc = new JSDOM(xml, { contentType: 'text/xml' }).window.document;
 
     const matches = Array.from(xmlDoc.getElementsByTagName('PersistedFilter'))
       .map((match, index) => {
-        // Sync PersistedFilter with match data
+        // Sync PersistedFilter with match data, remove replays
         const gameData = matchLogs[index];
-        if (!gameData) return null;
+        if (!gameData || !gameData.id.includes('-')) return null;
 
         // Parse tournament props
         const {
@@ -53,13 +52,11 @@ function verifyMatchData(matchLogs, fileName) {
           ...gameData,
         };
       })
-      .filter(Boolean)
-      // Remove replays from match history
-      .filter(({ id }) => id.includes('-'));
+      .filter(Boolean);
 
     return matches;
   } catch (error) {
-    console.log(`An error occured while verifying match data: ${error.message}`);
+    console.log('An error occured while verifying match data', error);
   }
 }
 

@@ -22,12 +22,12 @@ function parser(dir) {
     if (!mtgoLogs || !recentFilters) throw new Error('No logs found.');
 
     // Parse and verify match data
-    const matchData = mtgoLogs.map(file => getMatchData(file)).filter(Boolean);
-    const matches = verifyMatchData(matchData, recentFilters)?.filter(Boolean);
+    const matchData = mtgoLogs.map(file => getMatchData(file));
+    const matches = verifyMatchData(matchData, recentFilters);
 
     return matches;
   } catch (error) {
-    console.error(`An error occured while parsing matches: ${error.stack}`);
+    console.error('An error occured while parsing matches', error);
   }
 }
 

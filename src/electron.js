@@ -54,7 +54,7 @@ const createWindow = () => {
   const syncMatches = () => {
     const matches = parser(PATH);
 
-    const needsUpdate = matches.every(match => {
+    const needsUpdate = matches?.every(match => {
       const duplicate = previousMatches?.find(({ id }) => match.id === id);
       if (!duplicate) return false;
 

@@ -44,7 +44,7 @@ const fontStyles = `
   }
 `;
 
-const repoPrompt = `\u00A9 2018-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker`;
+const repoPrompt = `\u00A9 2020-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker`;
 
 const App = () => {
   const [storedLocation] = useLocalStorage('location', '/');
@@ -70,6 +70,14 @@ const App = () => {
   useEffect(() => {
     dispatch({ type: 'setMatches', value: storedMatches });
   }, [storedMatches]);
+
+  useEffect(() => {
+    if (!prerender && window.tracker) {
+      window.tracker.subscribe('matches', value => {
+        dispatch({ type: 'setMatches', value });
+      });
+    }
+  }, []);
 
   return (
     <AppContext.Provider value={{ ...state, dispatch }}>

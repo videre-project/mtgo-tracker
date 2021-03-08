@@ -1,4 +1,5 @@
 const { readFileSync } = require('fs');
+const { JSDOM } = require('jsdom');
 
 /**
  * Reads properties from XML parent
@@ -18,7 +19,8 @@ function verifyMatchData(matchLogs, fileName) {
     const xml = readFileSync(fileName, { encoding: 'utf8' });
 
     // Create a queryable document from parsed XML
-    const xmlDoc = new DOMParser().parseFromString(xml, 'application/xml');
+    const { window } = new JSDOM('');
+    const xmlDoc = new window.DOMParser().parseFromString(xml, 'application/xml');
 
     const matches = Array.from(xmlDoc.getElementsByTagName('PersistedFilter'))
       .map((match, index) => {

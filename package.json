@@ -4,32 +4,33 @@
   "homepage": "./",
   "description": "A lightweight open-source MTGO tracker.",
   "repository": "https://github.com/videre-project/mtgo-tracker.git",
-  "author": "Videre Project <support@videreproject.com>",
+  "author": "Cody Bennett <hi@codyb.co>",
   "license": "MIT",
   "main": "src/electron.js",
   "private": true,
   "devDependencies": {
-    "@testing-library/jest-dom": "^5.11.5",
-    "@testing-library/react": "^11.1.2",
-    "@testing-library/user-event": "^12.2.2",
-    "concurrently": "^5.3.0",
-    "electron": "11.0.2",
-    "electron-builder": "^22.9.1",
+    "@testing-library/jest-dom": "^5.11.9",
+    "@testing-library/react": "^11.1.5",
+    "@testing-library/user-event": "^12.8.1",
+    "concurrently": "^6.0.0",
+    "electron-builder": "^22.10.5",
     "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.5",
-    "eslint": "^7.14.0",
-    "prettier": "^2.2.0",
+    "enzyme-adapter-react-16": "^1.15.6",
+    "eslint": "^7.21.0",
+    "prettier": "^2.2.1",
     "react-scripts-postcss": "4.0.0-mod1",
     "react-snap": "^1.23.0",
     "rimraf": "^3.0.2",
-    "source-map-explorer": "^2.5.0",
-    "stylelint": "^13.7.2",
-    "stylelint-config-recommended": "^3.0.0",
-    "wait-on": "^5.2.0"
+    "source-map-explorer": "^2.5.2",
+    "stylelint": "^13.12.0",
+    "stylelint-config-recommended": "^4.0.0",
+    "wait-on": "^5.2.1"
   },
   "dependencies": {
     "classnames": "^2.2.6",
+    "electron": "12.0.0",
     "glob": "^7.1.6",
+    "jsdom": "^16.5.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
@@ -52,11 +53,19 @@
     "crawl": true,
     "publicPath": "/"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not op_mini all"
-  ],
+  "browserslist": {
+    "production": [
+      ">10%",
+      "not dead",
+      "not ie 11",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "build": {
     "appId": "com.videreproject.mtgo-tracker",
     "productName": "MTGO Tracker",

@@ -1,4 +1,5 @@
 const { sync } = require('glob');
+const { join } = require('path');
 const { statSync } = require('fs');
 const getMatchData = require('./getMatchData');
 const verifyMatchData = require('./verifyMatchData');
@@ -6,19 +7,15 @@ const verifyMatchData = require('./verifyMatchData');
 /**
  * Parses and verifies match data by MTGO path
  */
-function parser(path) {
+function parser(dir) {
   try {
     // Read and filter match logs by recency
-    const mtgoLogs = sync(`${path}/Match_GameLog_**.dat`)
+    const mtgoLogs = sync(join(dir, 'Match_GameLog_**.dat'))
       .map(name => ({ name, ...statSync(name) }))
-      .sort((a, b) => b.birthtime - a.birthtime)
-      .filter(
-        ({ ctime, mtime }) =>
-          Math.abs(new Date(mtime).getTime() - new Date(ctime).getTime()) > 0
-      );
+      .sort((a, b) => b.birthtime - a.birthtime);
 
     // Select active RecentFilters.xml
-    const [recentFilters] = sync(`${path}/RecentFilters.xml`)
+    const [recentFilters] = sync(join(dir, 'RecentFilters.xml'))
       .map(name => ({ name, ...statSync(name) }))
       .sort((a, b) => b.mtime - a.mtime)
       .map(({ name }) => name);
@@ -26,7 +23,7 @@ function parser(path) {
 
     // Parse and verify match data
     const matchData = mtgoLogs.map(file => getMatchData(file)).filter(Boolean);
-    const matches = verifyMatchData(matchData, recentFilters).filter(Boolean);
+    const matches = verifyMatchData(matchData, recentFilters)?.filter(Boolean);
 
     return matches;
   } catch (error) {

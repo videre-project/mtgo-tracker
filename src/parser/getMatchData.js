@@ -23,14 +23,14 @@ function getMatchData({ name, ctime, mtime }) {
     const usernames = [
       ...new Set(
         output
-          .filter(s => s.includes('joined the game'))
+          .filter(s => s.includes(' joined the game'))
           .map(s => s.replace(' joined the game', ''))
       ),
     ];
     if (usernames.length !== 2) return null;
 
     // Filter seen cards
-    const cards = output.filter(s => /(plays|casts|reveals|discards|exiles)/.test(s));
+    const cards = output.filter(s => /plays|casts|reveals|discards|exiles/.test(s));
 
     // Enumerate seen cards per player
     const decks = usernames.map(username => {
@@ -44,10 +44,8 @@ function getMatchData({ name, ctime, mtime }) {
 
     // Calculate concessions
     const concessions = output
-      .filter(s => /(has conceded|has lost)/.test(s))
-      .map(line =>
-        line.replace(' has conceded from the game', '').replace(' has lost the game', '')
-      );
+      .filter(s => /has conceded|has lost/.test(s))
+      .map(line => line.replace(/ has (conceded from|lost) the game/g, ''));
     if (concessions.length < 2) {
       concessions.push(
         output

@@ -9,6 +9,12 @@
   "main": "src/electron.js",
   "private": true,
   "devDependencies": {
+    "@babel/core": "^7.13.8",
+    "@storybook/addon-a11y": "^6.1.21",
+    "@storybook/addon-actions": "^6.1.21",
+    "@storybook/addon-controls": "^6.1.21",
+    "@storybook/preset-create-react-app": "^3.1.6",
+    "@storybook/react": "^6.1.21",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.1.5",
     "@testing-library/user-event": "^12.8.1",
@@ -39,13 +45,15 @@
   "scripts": {
     "start": "concurrently \"set BROWSER=none && react-scripts start\" \"wait-on http://localhost:3000 && set ELECTRON_START_URL=http://localhost:3000 && electron .\"",
     "build": "react-scripts build",
+    "build-storybook": "build-storybook -o build-storybook",
     "postbuild": "react-snap && npm run package",
     "package": "rimraf dist && electron-builder --windows && rimraf build",
     "test": "react-scripts test --env=jsdom --watchAll --verbose",
     "test:ci": "react-scripts test --env=jsdom --watchAll=false --verbose",
     "eject": "react-scripts eject",
     "lint": "eslint src && prettier src --check",
-    "lint-fix": "eslint src --fix && prettier src --write src",
+    "lint-fix": "eslint src --fix && prettier src --write",
+    "storybook": "start-storybook -p 9009 -s public",
     "analyze": "source-map-explorer 'build/static/js/*.js'"
   },
   "reactSnap": {

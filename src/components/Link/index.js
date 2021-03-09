@@ -17,6 +17,8 @@ const Link = ({ rel, target, children, secondary, className, href, as, ...rest }
     event.preventDefault();
     event.stopPropagation();
 
+    if (!dispatch) return;
+
     return dispatch({ type: 'setLocation', value: href });
   };
 

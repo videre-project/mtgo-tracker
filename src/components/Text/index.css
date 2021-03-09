@@ -15,6 +15,10 @@
   font-size: var(--fontSizeBodyL);
 }
 
+.text--size-xl {
+  font-size: var(--fontSizeBodyXL);
+}
+
 .text--align-auto {
   text-align: inherit;
 }

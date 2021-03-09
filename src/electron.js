@@ -1,4 +1,4 @@
-const { BrowserWindow, app } = require('electron');
+const { BrowserWindow, app, Tray, Menu } = require('electron');
 const { format } = require('url');
 const { join } = require('path');
 const { sync } = require('glob');
@@ -19,6 +19,7 @@ const [recentFilters] = sync(join(PATH, 'RecentFilters.xml'))
 
 // Initialize main window (UI)
 let mainWindow;
+let tray;
 
 app.on('ready', () => {
   // Create the browser window.
@@ -70,8 +71,44 @@ app.on('ready', () => {
     syncMatches();
   });
 
-  // Dereference the window object
-  mainWindow.on('closed', () => (mainWindow = null));
+  // Open devtools on local
+  if (process.env.ELECTRON_START_URL) mainWindow.webContents.openDevTools();
+
+  // Tasktray icon
+  tray = new Tray(join(__dirname, '../public/icon.ico'));
+  tray.setToolTip('MTGO Tracker');
+  tray.on('click', () => mainWindow.show());
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      {
+        label: 'Update Matchdata',
+        click: () => {
+          syncMatches();
+        },
+      },
+      { label: 'Separator', type: 'separator' },
+      {
+        label: 'Quit',
+        role: 'quit',
+        click: () => {
+          app.isQuiting = true;
+          app.quit();
+        },
+      },
+    ])
+  );
+
+  // Minimize-to-tray behavior
+  mainWindow.on('close', event => {
+    if (!app.isQuiting) {
+      event.preventDefault();
+
+      mainWindow.hide();
+    }
+  });
+
+  // Dereference the window object on cleanup
+  mainWindow.on('closed', () => (mainWindow = tray = null));
 });
 
 // Cleanup on close

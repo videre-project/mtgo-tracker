@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, createContext, useReducer, Fragment } from 'react';
+import { useEffect, createContext, useReducer } from 'react';
 import classNames from 'classnames';
 import { Transition, TransitionGroup } from 'react-transition-group';
 import ThemeProvider from 'components/ThemeProvider';
@@ -12,16 +12,12 @@ import prerender from 'utils/prerender';
 import './reset.css';
 import './index.css';
 
-const Splash = lazy(() => import('pages/Splash'));
-const Matches = lazy(() => import('pages/Matches'));
-
 export const AppContext = createContext();
 export const TransitionContext = createContext();
 
 const repoPrompt = `\u00A9 2020-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker\n\n`;
 
 const App = () => {
-  const [storedLocation] = useLocalStorage('location', '/');
   const [storedMatches] = useLocalStorage('matches', []);
   const [state, dispatch] = useReducer(reducer, initialState);
   const { location } = state;
@@ -33,10 +29,10 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    dispatch({ type: 'setLocation', value: storedLocation });
-  }, [storedLocation]);
+    if (!prerender) {
+      console.info('storedMatches', storedMatches);
+    }
 
-  useEffect(() => {
     dispatch({ type: 'setMatches', value: storedMatches });
   }, [storedMatches]);
 
@@ -44,8 +40,10 @@ const App = () => {
     let unsubscribe;
 
     if (!prerender && window.tracker) {
-      unsubscribe = window.tracker.subscribe('matches', value => {
-        dispatch({ type: 'setMatches', value });
+      unsubscribe = window.tracker.subscribe('matches', matches => {
+        console.info('matches', matches);
+
+        dispatch({ type: 'setMatches', value: matches });
       });
     }
 
@@ -69,10 +67,7 @@ const App = () => {
             {status => (
               <TransitionContext.Provider value={{ status }}>
                 <div className={classNames('app__page', `app__page--${status}`)}>
-                  <Suspense fallback={<Fragment />}>
-                    {location === '/' && <Splash />}
-                    {location === '/matches' && <Matches />}
-                  </Suspense>
+                  {/* Routes */}
                 </div>
               </TransitionContext.Provider>
             )}

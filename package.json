@@ -82,7 +82,7 @@
   "build": {
     "appId": "com.videreproject.mtgo-tracker",
     "productName": "MTGO Tracker",
-    "copyright": "Videre Project",
+    "copyright": "© 2020-2021 Videre Project",
     "directories": {
       "buildResources": "public"
     }

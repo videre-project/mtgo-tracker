@@ -6,6 +6,7 @@ const verifyMatchData = require('./verifyMatchData');
 
 /**
  * Parses and verifies match data by MTGO path
+ * @param {string} dir Directory to scan for match data
  */
 function parser(dir) {
   try {

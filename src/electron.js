@@ -23,14 +23,12 @@ let mainWindow;
 app.on('ready', () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    resizable: false,
     height: 640,
     width: 1024,
     title: 'MTGO Tracker',
     icon: join(__dirname, '../public/icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
-      nodeIntegration: false,
       contextIsolation: true,
       preload: join(__dirname, '../public/preload.js'),
     },

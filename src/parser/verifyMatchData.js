@@ -3,6 +3,8 @@ const { JSDOM } = require('jsdom');
 
 /**
  * Reads properties from XML parent
+ * @param {HTMLElement} parent XML parent to parse
+ * @param {string} selector XML property to select
  */
 function parse(parent, selector) {
   const element = parent.querySelector(`${selector} *[IsSet=true] Value`);
@@ -12,11 +14,13 @@ function parse(parent, selector) {
 
 /**
  * Syncs match data with RecentFilters.xml
+ * @param {Array.<{ id: string }>} matchLogs Parsed match data
+ * @param {string} recentFilters RecentFilters file path
  */
-function verifyMatchData(matchLogs, fileName) {
+function verifyMatchData(matchLogs, recentFilters) {
   try {
     // Return XML string from RecentFilters.xml
-    const xml = readFileSync(fileName, { encoding: 'utf8' });
+    const xml = readFileSync(recentFilters, { encoding: 'utf8' });
 
     // Create a queryable document from parsed XML
     const xmlDoc = new JSDOM(xml, { contentType: 'text/xml' }).window.document;

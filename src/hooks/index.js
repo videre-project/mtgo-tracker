@@ -5,6 +5,7 @@ import useInterval from './useInterval';
 import useInViewport from './useInViewport';
 import useLocalStorage from './useLocalStorage';
 import useParallax from './useParallax';
+import usePrefersColorScheme from './usePrefersColorScheme';
 import usePrefersReducedMotion from './usePrefersReducedMotion';
 import usePrevious from './usePrevious';
 import useRouteTransition from './useRouteTransition';
@@ -18,6 +19,7 @@ export {
   useInViewport,
   useLocalStorage,
   useParallax,
+  usePrefersColorScheme,
   usePrefersReducedMotion,
   usePrevious,
   useRouteTransition,

@@ -2,9 +2,11 @@ const { readFileSync } = require('fs');
 
 /**
  * Parses match data from file
+ * @param {{ name: string, ctime: number, mtime: number }} metaData Match file metadata
  */
-function getMatchData({ name, ctime, mtime }) {
+function getMatchData(metaData) {
   try {
+    const { name, ctime, mtime } = metaData;
     const data = readFileSync(name, { encoding: 'utf8' });
 
     // Remove utf8 errors and create an array of game actions

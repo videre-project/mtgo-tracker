@@ -47,7 +47,7 @@
     "build": "react-scripts build",
     "build-storybook": "build-storybook -o build-storybook",
     "postbuild": "react-snap && npm run package",
-    "package": "rimraf dist && electron-builder --windows && rimraf build --publish never",
+    "package": "rimraf dist && electron-builder --windows && rimraf build --publish=never",
     "test": "react-scripts test --env=jsdom --watchAll --verbose",
     "test:ci": "react-scripts test --env=jsdom --watchAll=false --verbose",
     "eject": "react-scripts eject",

@@ -44,9 +44,9 @@ class MTGO_OCR():
             .lstrip()
 
     def getTitleBarInfo(self, withPanel=False):
-        def getPatternMatch(self, pattern, idx=0):
+        def getPatternMatch(self, pattern):
             if pattern in self:
-                return int(re.findall('(?<='+str(pattern)+')(\d.*?)(?=\s)', self)[idx]) if pattern in self else None
+                return int(re.findall('(?<='+str(pattern)+')(\d.*?)(?=\s)', self)[0]) if pattern in self else None
             else: return None
 
         self.title_bar_text = re.sub('[^a-z|A-Z|0-9|\(|\)|\s]*(?=.*\:)', '', self.getOCRString(self.cropTitleBar()))

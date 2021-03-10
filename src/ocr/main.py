@@ -12,7 +12,7 @@ if "--game_window" in sys.argv: WINDOW_TYPE = "game_window"
 elif "--main_window" in sys.argv: WINDOW_TYPE = "main_window"
 elif "--event_window" in sys.argv: WINDOW_TYPE = "event_window"
 else: WINDOW_TYPE = None
-LEVEL = int(getArgv(f"--{WINDOW_TYPE}", 0))
+LEVEL = int(getArgv(f"--{WINDOW_TYPE}", 0)) if WINDOW_TYPE == "main_window" else None
 PATH = getArgv("path", None)
 
 if (GET and os.path.exists(PATH)):

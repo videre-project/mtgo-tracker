@@ -15,7 +15,7 @@ import './index.css';
 export const AppContext = createContext();
 export const TransitionContext = createContext();
 
-const repoPrompt = `\u00A9 2020-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/mtgo-tracker\n\n`;
+const repoPrompt = `\u00A9 2020-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/videre-tracker\n\n`;
 
 const App = () => {
   const [storedMatches] = useLocalStorage('matches', []);

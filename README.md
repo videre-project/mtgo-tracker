@@ -1,4 +1,4 @@
-# MTGO Tracker
+# Videre Tracker
 
 A lightweight open-source MTGO tracker.
 

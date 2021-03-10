@@ -5,7 +5,7 @@ addons.setConfig({
   theme: {
     ...themes.light,
     brandImage: 'https://videreproject.com/icon.svg',
-    brandTitle: 'MTGO Tracker Components',
+    brandTitle: 'Videre Tracker Components',
     brandUrl: 'https://videreproject.com',
   },
 });

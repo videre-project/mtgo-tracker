@@ -1,9 +1,9 @@
 {
-  "name": "mtgo-tracker",
+  "name": "videre-tracker",
   "version": "0.1.0",
   "homepage": "./",
   "description": "A lightweight open-source MTGO tracker.",
-  "repository": "https://github.com/videre-project/mtgo-tracker.git",
+  "repository": "https://github.com/videre-project/videre-tracker.git",
   "author": "Cody Bennett <hi@codyb.co>",
   "license": "MIT",
   "main": "src/electron.js",
@@ -71,17 +71,17 @@
     "last 1 chrome version"
   ],
   "build": {
-    "appId": "com.videreproject.mtgo-tracker",
-    "productName": "MTGO Tracker",
+    "appId": "com.videreproject.videre-tracker",
+    "productName": "Videre Tracker",
     "copyright": "© 2020-2021 Videre Project",
     "directories": {
       "buildResources": "public"
     },
     "protocols": [
       {
-        "name": "MTGO Tracker",
+        "name": "Videre Tracker",
         "schemes": [
-          "mtgo-tracker"
+          "videre-tracker"
         ]
       }
     ],

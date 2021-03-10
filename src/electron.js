@@ -9,7 +9,7 @@ const parser = require('./parser');
 app.commandLine.appendSwitch('force_high_performance_gpu');
 
 // Configure app protocol
-app.setAsDefaultProtocolClient('mtgo-tracker');
+app.setAsDefaultProtocolClient('videre-tracker');
 
 // Set default path to Windows MTGO path
 const PATH = join(
@@ -32,7 +32,7 @@ app.on('ready', () => {
   mainWindow = new BrowserWindow({
     height: 640,
     width: 1024,
-    title: 'MTGO Tracker',
+    title: 'Videre Tracker',
     icon: join(__dirname, '../public/icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
@@ -82,12 +82,12 @@ app.on('ready', () => {
 
   // Tasktray icon
   tray = new Tray(join(__dirname, '../public/icon.ico'));
-  tray.setToolTip('MTGO Tracker');
+  tray.setToolTip('Videre Tracker');
   tray.on('click', () => mainWindow.show());
   tray.setContextMenu(
     Menu.buildFromTemplate([
       {
-        label: 'Update Matchdata',
+        label: 'Update Matches',
         click: () => {
           syncMatches();
         },

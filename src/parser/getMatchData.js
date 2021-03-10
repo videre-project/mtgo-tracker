@@ -11,7 +11,7 @@ function getMatchData(metaData) {
 
     // Remove utf8 errors
     const output = JSON.stringify(data)
-      .replace(/[^\040-\176\200-\377]|/gi, '')
+      .replace(/[^\040-\176\200-\377]/gi, '')
       .split('@P')
       .map(line => line?.replace(/\.[^.]*$/, '.'));
 
@@ -94,8 +94,14 @@ function getMatchData(metaData) {
       };
     });
 
-    // Clean log to make human-readable
-    const log = output.join('\n').replace(/@(\[|[a-z])|@:\d+,\d+:@\]/g, '');
+    // Stringify and sanitize output to make human-readable
+    const log = output.reduce((log, input) => {
+      const line = input.replace(/[\\|/].*$|@(\[|[a-z])|@:\d+,\d+:@\]/g, '');
+
+      log += `${line}\n`;
+
+      return log;
+    }, '');
 
     return {
       id,

@@ -23,7 +23,7 @@ function parser(dir) {
     if (!mtgoLogs || !recentFilters) throw new Error('No logs found.');
 
     // Parse and verify match data
-    const matchData = mtgoLogs.map(file => getMatchData(file));
+    const matchData = mtgoLogs.map(file => getMatchData(file)).filter(Boolean);
     const matches = verifyMatchData(matchData, recentFilters);
 
     return matches;

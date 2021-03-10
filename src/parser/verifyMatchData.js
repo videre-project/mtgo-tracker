@@ -29,7 +29,7 @@ function verifyMatchData(matchLogs, recentFilters) {
       .map((match, index) => {
         // Sync PersistedFilter with match data, remove replays
         const gameData = matchLogs[index];
-        if (!gameData || !gameData.id.includes('-')) return null;
+        if (!gameData?.id.includes('-')) return null;
 
         // Parse tournament props
         const {
@@ -60,7 +60,7 @@ function verifyMatchData(matchLogs, recentFilters) {
 
     return matches;
   } catch (error) {
-    console.log('An error occured while verifying match data', error);
+    console.error('An error occured while verifying match data', error);
   }
 }
 

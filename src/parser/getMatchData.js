@@ -9,48 +9,51 @@ function getMatchData(metaData) {
     const { name, ctime, mtime } = metaData;
     const data = readFileSync(name, { encoding: 'utf8' });
 
-    // Remove utf8 errors and create an array of game actions
+    // Remove utf8 errors
     const output = JSON.stringify(data)
-      .replace(/[^\040-\176\200-\377]/gi, '') // Remove utf8 errors.
+      .replace(/[^\040-\176\200-\377]|/gi, '')
       .split('@P')
-      .map(line => {
-        const hasHintText = line.includes('.).');
-        const string = line.substring(
-          0,
-          hasHintText ? line.indexOf('.).') : line.indexOf('.')
-        );
-
-        return hasHintText ? `${string}.)` : string;
-      })
-      .filter(Boolean);
+      .map(line => line?.replace(/\.[^.]*$/, '.'));
 
     // Filter seen players
-    const usernames = [
-      ...new Set(
-        output
-          .filter(line => line.includes(' joined the game'))
-          .map(line => line.replace(' joined the game', ''))
-      ),
-    ];
-    if (usernames.length !== 2) return null;
+    const usernames = output.reduce((usernames, line) => {
+      if (!line?.includes(' joined the game')) return usernames;
+
+      const username = line.replace(' joined the game', '');
+      if (!usernames.includes(username)) usernames.push(username);
+
+      return usernames;
+    }, []);
+    if (usernames.length < 2) return null;
 
     // Filter seen cards
-    const cards = output.filter(line => /plays|casts|reveals|discards|exiles/.test(line));
+    const played = output.filter(line =>
+      /plays|casts|reveals|discards|exiles/.test(line)
+    );
 
     // Enumerate seen cards per player
     const decks = usernames.map(username => {
-      const deck = cards
-        .filter(line => line.includes(username))
-        .filter(Boolean)
-        .map(line => line?.split('@[')[1]?.split('@')[0]);
+      const deck = played.reduce((deck, line) => {
+        if (!line?.includes(username)) return deck;
 
-      return deck?.filter((card, index) => deck.indexOf(card) === index)?.filter(Boolean);
+        const card = line.replace(/.*@\[|@[^[]*/g, '');
+        if (!deck.includes(card)) deck.push(card);
+
+        return deck;
+      }, []);
+
+      return deck;
     });
 
     // Calculate concessions
-    const concessions = output
-      .filter(line => /has conceded|has lost/.test(line))
-      .map(line => line.replace(/ has (conceded from|lost) the game/g, ''));
+    const concessions = output.reduce((concessions, line) => {
+      if (!/has conceded|has lost/.test(line)) return concessions;
+
+      const concession = line.replace(/ has (conceded from|lost) the game/g, '');
+      concessions.push(concession);
+
+      return concessions;
+    }, []);
     if (concessions.length < 2) {
       const concession = output
         .filter(line => line.includes(' has left the game'))
@@ -60,23 +63,27 @@ function getMatchData(metaData) {
       concessions.push(concession);
     }
 
-    if (concessions.length < 2) return null;
-
     // Parse match id
     const id = name.replace(/.*Match_GameLog_|\.dat$/g, '');
 
-    // Calculate match start time
+    // Calculate match time and duration
     const date = new Date(ctime).getTime();
-
-    // Calculate match duration
     const duration = Math.abs(new Date(mtime).getTime() - date);
 
     // Bind match data to players
     const players = usernames.map((username, index) => {
       const deck = decks[index];
-      const wins = concessions.filter(concession => concession !== username).length;
-      const losses = concessions.filter(concession => concession === username).length;
-      const record = `${wins}-${losses}`;
+      const record = concessions.reduce((result, concession) => {
+        let [wins, losses] = result.split('-').map(n => Number(n));
+
+        if (concession === username) {
+          losses += 1;
+        } else {
+          wins += 1;
+        }
+
+        return (result = `${wins}-${losses}`);
+      }, '0-0');
       const games = concessions.map(concession => (concession === username ? 'L' : 'W'));
 
       return {
@@ -88,22 +95,7 @@ function getMatchData(metaData) {
     });
 
     // Clean log to make human-readable
-    const log = output
-      .map(line => {
-        if (line.includes('\\')) return line.split('\\')[0];
-        if (!line.includes('@[')) return line;
-
-        const fragments = line.split('@[').map(fragment =>
-          fragment
-            .replace('@]', '@')
-            .split('@')
-            .filter(fragment => !fragment.includes(':'))
-            .join('')
-        );
-
-        return `${fragments.join('')}.`;
-      })
-      .join('\n');
+    const log = output.join('\n').replace(/@(\[|[a-z])|@:\d+,\d+:@\]/g, '');
 
     return {
       id,

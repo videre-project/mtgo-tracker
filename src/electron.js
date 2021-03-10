@@ -5,6 +5,12 @@ const { sync } = require('glob');
 const { statSync, watchFile } = require('fs');
 const parser = require('./parser');
 
+// Enable GPU
+app.commandLine.appendSwitch('force_high_performance_gpu');
+
+// Configure app protocol
+app.setAsDefaultProtocolClient('mtgo-tracker');
+
 // Set default path to Windows MTGO path
 const PATH = join(
   process.env.USERPROFILE,

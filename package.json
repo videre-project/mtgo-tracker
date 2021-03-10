@@ -40,7 +40,8 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
-    "react-transition-group": "^4.4.1"
+    "react-transition-group": "^4.4.1",
+    "three": "^0.126.1"
   },
   "scripts": {
     "start": "concurrently \"set BROWSER=none && react-scripts start\" \"wait-on http://localhost:3000 && set ELECTRON_START_URL=http://localhost:3000 && electron .\"",
@@ -66,19 +67,9 @@
     "crawl": true,
     "publicPath": "/"
   },
-  "browserslist": {
-    "production": [
-      ">10%",
-      "not dead",
-      "not ie 11",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "browserslist": [
+    "last 1 chrome version"
+  ],
   "build": {
     "appId": "com.videreproject.mtgo-tracker",
     "productName": "MTGO Tracker",
@@ -86,6 +77,14 @@
     "directories": {
       "buildResources": "public"
     },
+    "protocols": [
+      {
+        "name": "MTGO Tracker",
+        "schemes": [
+          "mtgo-tracker"
+        ]
+      }
+    ],
     "publish": null
   },
   "proxy": "https://api.projectvidere.com"

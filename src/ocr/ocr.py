@@ -5,9 +5,13 @@ import cv2, pytesseract
 
 class MTGO_OCR():
 
-    # Check for pytesseract binary
-    if os.path.exists('C:\\Program Files\\Tesseract-OCR'):
+    # Check for portable binary
+    if os.path.exists('./tesseract-portable'):
+        pytesseract.pytesseract.tesseract_cmd = './tesseract-portable/tesseract.exe'
+    # Check for 64 bit binary
+    elif os.path.exists('C:\\Program Files\\Tesseract-OCR'):
         pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+    # Check for 32 bit binary
     elif os.path.exists('C:\\Program Files (x86)\\Tesseract-OCR'):
         pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe'
     else: sys.exit(f"Tesseract-OCR binary not installed.")

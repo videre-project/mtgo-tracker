@@ -18,10 +18,15 @@ const PATH = join(
 );
 
 // Select active RecentFilters.xml
-const [recentFilters] = sync(join(PATH, 'RecentFilters.xml'))
-  .map(name => ({ name, ...statSync(name) }))
-  .sort((a, b) => b.mtime - a.mtime)
-  .map(({ name }) => name);
+const recentFilters = sync(join(PATH, 'RecentFilters.xml')).reduce(
+  (activeFilter, filter) => {
+    if (statSync(filter).mtime > statSync(activeFilter).mtime) {
+      activeFilter = filter;
+    }
+
+    return activeFilter;
+  }
+);
 
 // Initialize main window (UI)
 let mainWindow;

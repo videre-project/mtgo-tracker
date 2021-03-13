@@ -37,6 +37,8 @@ const App = () => {
 
     if (!prerender && window.tracker) {
       unsubscribe = window.tracker.subscribe('match-update', match => {
+        console.info('match-update', match.id);
+
         dispatch({ type: 'updateMatch', value: match });
       });
     }

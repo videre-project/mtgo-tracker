@@ -37,7 +37,7 @@
     "classnames": "^2.2.6",
     "event-stream": "^4.0.1",
     "glob": "^7.1.6",
-    "jsdom": "^16.5.0",
+    "jsdom": "^16.5.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
@@ -75,6 +75,10 @@
     "appId": "com.videreproject.videre-tracker",
     "productName": "Videre Tracker",
     "copyright": "© 2020-2021 Videre Project",
+    "files": [
+      "**/*",
+      "public/preload.js"
+    ],
     "directories": {
       "buildResources": "public"
     },

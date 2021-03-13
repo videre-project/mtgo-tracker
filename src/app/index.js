@@ -29,10 +29,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (!prerender) {
-      console.info('storedMatches', storedMatches);
-    }
-
     dispatch({ type: 'setMatches', value: storedMatches });
   }, [storedMatches]);
 
@@ -40,10 +36,8 @@ const App = () => {
     let unsubscribe;
 
     if (!prerender && window.tracker) {
-      unsubscribe = window.tracker.subscribe('matches', matches => {
-        console.info('matches', matches);
-
-        dispatch({ type: 'setMatches', value: matches });
+      unsubscribe = window.tracker.subscribe('match-update', match => {
+        dispatch({ type: 'updateMatch', value: match });
       });
     }
 

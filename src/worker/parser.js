@@ -4,19 +4,6 @@ const { split, mapSync } = require('event-stream');
 const { JSDOM } = require('jsdom');
 
 /**
- * Parses and validates match data by file path
- * @param {String} filePath Matchlog file path to parse
- */
-const parseMatch = async filePath => {
-  const name = filePath.replace(/^.*(?=Match_GameLog_)/, '');
-  const path = filePath.replace(/Match_GameLog_.*$/, '');
-
-  const match = await getMatchData({ name, path, ...statSync(filePath) });
-
-  return match;
-};
-
-/**
  * Creates a file stream, returning a promise.
  * @param {String} file Target file path.
  * @param {String} [encoding='utf8'] Target file encoding. Defaults to `utf8`.
@@ -37,12 +24,11 @@ const scan = (file, encoding = 'utf8') => {
 };
 
 /**
- * Parses match data from a match log
- * @param {{ name: string, ctime: number, mtime: number }} metaData Match file metadata
+ * Parses and validates match data by file path
+ * @param {String} filePath Match log file path to read & parse
  */
-const getMatchData = async metaData => {
-  const { name, path, ctime, mtime } = metaData;
-  const data = await scan(join(path, name));
+const parseMatch = async filePath => {
+  const data = await scan(filePath);
 
   // Remove utf8 errors and get game actions
   const output = JSON.stringify(data)
@@ -51,9 +37,10 @@ const getMatchData = async metaData => {
     .map(line => line?.replace(/\.[^.]*$/, '.'));
 
   // Parse match id
-  const id = name.replace(/Match_GameLog_|\.dat/g, '');
+  const id = filePath.replace(/.*Match_GameLog_|\.dat/g, '');
 
   // Calculate match time and duration
+  const { ctime, mtime } = statSync(filePath);
   const date = new Date(ctime).getTime();
   const duration = Math.abs(new Date(mtime).getTime() - date);
 
@@ -134,19 +121,14 @@ const getMatchData = async metaData => {
     return log;
   }, '');
 
-  // Cross-check with recentFilters, add tournament data
-  const match = await verifyMatchData(
-    {
-      id,
-      date,
-      duration,
-      players,
-      log,
-    },
-    path
-  );
-
-  return match;
+  return {
+    id,
+    filePath,
+    date,
+    duration,
+    players,
+    log,
+  };
 };
 
 /**
@@ -162,10 +144,15 @@ const parse = (parent, selector) => {
 
 /**
  * Syncs match data with RecentFilters.xml
- * @param {{ id: string }} matchLog Parsed match data
- * @param {String} path Match file path to look for a recentFilters file
+ * @param {{ id: string, filePath: string }} matchLog Parsed match data
+ * @param {Number} [matchIndex] Match index to validate in recentFilters. Default is `0`.
  */
-const verifyMatchData = async (matchLog, path) => {
+const validateMatch = async (matchLog, matchIndex = 0) => {
+  if (!matchLog?.filePath) return;
+
+  // Get match path from matchLog.filePath
+  const path = matchLog.filePath.replace(/Match_GameLog_.*$/, '');
+
   // Return XML string from RecentFilters.xml
   const xml = await scan(join(path, 'RecentFilters.xml'));
 
@@ -173,7 +160,8 @@ const verifyMatchData = async (matchLog, path) => {
   const xmlDoc = new JSDOM(xml, { contentType: 'text/xml' }).window.document;
 
   // Get match context
-  const match = xmlDoc.querySelector('PersistedFilter');
+  const match = Array.from(xmlDoc.getElementsByTagName('PersistedFilter'))[matchIndex];
+  if (!match) return matchLog;
 
   // Parse tournament props
   const { Comments, OrganizationLevel, TournamentInitiationType } = match.attributes;
@@ -198,9 +186,8 @@ const verifyMatchData = async (matchLog, path) => {
 };
 
 module.exports = {
-  parseMatch,
   scan,
-  getMatchData,
+  parseMatch,
   parse,
-  verifyMatchData,
+  validateMatch,
 };

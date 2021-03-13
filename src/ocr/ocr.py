@@ -67,9 +67,7 @@ class MTGO_OCR():
         elif 'Event #' in self.title_bar_text:
             self.event_id = getPatternMatch(self.title_bar_text, 'Event # ')
             if withPanel == True:
-                self.tournament_panel_text = re.sub('\s+',' ',self.getOCRString(
-                    self.cropTournamentPanel(), config = '--oem 3 --psm 4'
-                ))
+                self.tournament_panel_text = re.sub('\s+',' ',self.getOCRString(self.cropTournamentPanel()))
                 if 'RETURN TO GAME.' in self.tournament_panel_text:
                     self.tournament_panel_text = self.tournament_panel_text[:-16]
                 self.match_n = getPatternMatch(self.tournament_panel_text, 'Round: ')

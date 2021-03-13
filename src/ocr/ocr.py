@@ -1,7 +1,7 @@
 import os, sys
 import re
 
-import cv2, pytesseract
+import cv2, easyocr
 
 class MTGO_OCR():
 
@@ -41,11 +41,14 @@ class MTGO_OCR():
             return self.grey[offset_h:offset_h+75, offset_w-200:offset_w]
 
     @staticmethod
-    def getOCRString(self, config='--oem 3 --psm 6'):
-        return pytesseract.image_to_string(self,
-            config = config)\
-            .replace('/\n|\r/g', '')\
-            .lstrip()
+    def getOCRString(self, fx=2, fy=2, link_threshold=0.3, add_margin=0.2):
+        ocr_output = easyocr.Reader(['en'])\
+        .readtext(\
+            cv2.resize(self, None, fx=fx, fy=fy, interpolation=cv2.INTER_CUBIC),\
+            link_threshold=link_threshold, add_margin=add_margin, detail=0,\
+            allowlist='#()-_:. abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'\
+        )
+        return ' '.join(ocr_output).replace('/\n|\r/g', '').lstrip()
 
     def getTitleBarInfo(self, withPanel=False):
         def getPatternMatch(self, pattern):

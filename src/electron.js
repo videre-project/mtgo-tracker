@@ -3,7 +3,7 @@ const { format } = require('url');
 const { join } = require('path');
 const { sync } = require('glob');
 const { statSync, watchFile } = require('fs');
-const parser = require('./parser');
+const { updateMatches } = require('./worker');
 
 // Enable GPU
 app.commandLine.appendSwitch('force_high_performance_gpu');
@@ -51,30 +51,16 @@ app.on('ready', () => {
     });
   mainWindow.loadURL(startUrl);
 
-  // Previous match results
-  let previousMatches;
-
-  // Send MTGO match data to app
-  const syncMatches = () => {
-    const matches = parser(PATH);
-
-    const needsUpdate = matches?.some(match => {
-      const duplicate = previousMatches?.find(({ id }) => match.id === id);
-      if (!duplicate) return true;
-
-      return JSON.stringify(match) !== JSON.stringify(duplicate);
+  const handleMatchSync = () => {
+    updateMatches(PATH, match => {
+      mainWindow.webContents.send('match-update', match);
     });
-
-    if (needsUpdate) {
-      previousMatches = matches.slice(0);
-      mainWindow.webContents.send('matches', matches);
-    }
   };
 
   // Init MTGO daemon
   mainWindow.webContents.on('did-finish-load', () => {
-    watchFile(recentFilters, syncMatches);
-    syncMatches();
+    watchFile(recentFilters, handleMatchSync);
+    handleMatchSync();
   });
 
   // Open devtools on local
@@ -89,7 +75,7 @@ app.on('ready', () => {
       {
         label: 'Update Matches',
         click: () => {
-          syncMatches();
+          handleMatchSync();
         },
       },
       { label: 'Separator', type: 'separator' },

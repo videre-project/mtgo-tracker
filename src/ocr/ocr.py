@@ -4,18 +4,7 @@ import re
 import cv2, easyocr
 
 class MTGO_OCR():
-
-    # Check for portable binary
-    if os.path.exists('./tesseract-portable'):
-        pytesseract.pytesseract.tesseract_cmd = './tesseract-portable/tesseract.exe'
-    # Check for 64 bit binary
-    elif os.path.exists('C:\\Program Files\\Tesseract-OCR'):
-        pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
-    # Check for 32 bit binary
-    elif os.path.exists('C:\\Program Files (x86)\\Tesseract-OCR'):
-        pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe'
-    else: sys.exit(f"Tesseract-OCR binary not installed.")
-
+    
     def __init__(self, path):
         self.original = cv2.bitwise_not(cv2.imread(path))
         self.height, self.width, self.channels = self.original.shape
@@ -53,7 +42,7 @@ class MTGO_OCR():
     def getTitleBarInfo(self, withPanel=False):
         def getPatternMatch(self, pattern):
             if pattern in self:
-                return int(re.findall('(?<='+str(pattern)+')(\d.*?)(?=\s)', self)[0]) if pattern in self else None
+                return int(re.findall('(?<='+str(pattern)+')(\d.*?)(?=\s)', self)[0])
             else: return None
 
         self.title_bar_text = re.sub('[^a-z|A-Z|0-9|\(|\)|\s]*(?=.*\:)', '', self.getOCRString(self.cropTitleBar()))

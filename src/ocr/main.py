@@ -1,7 +1,7 @@
 import os, sys
 import re
 
-import cv2, pytesseract
+import cv2, easyocr
 
 from argv import getArgv
 from ocr import MTGO_OCR

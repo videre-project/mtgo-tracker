@@ -1,9 +1,7 @@
 import { split, mapSync } from 'event-stream';
 import { JSDOM } from 'jsdom';
+import { requireAtRuntime } from 'utils/electron';
 
-// Run-time dependencies
-const requireAtRuntime =
-  typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require; // eslint-disable-line
 const { join } = requireAtRuntime('path');
 const { statSync, createReadStream } = requireAtRuntime('fs');
 

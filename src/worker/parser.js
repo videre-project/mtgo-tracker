@@ -34,9 +34,9 @@ export const parseMatch = async filePath => {
 
   // Remove utf8 errors and get game actions
   const output = JSON.stringify(data)
-    .replace(/[^\040-\176\200-\377]/gi, '')
+    .replace(/\uFFFD/g, '')
     .split('@P')
-    .map(line => line?.replace(/\.[^.]*$/, '.'));
+    .map(line => line.replace(/(?:\.)([^.]|\\u.*)*$/, ''));
 
   // Parse match id
   const id = filePath.replace(/.*Match_GameLog_|\.dat/g, '');
@@ -116,9 +116,29 @@ export const parseMatch = async filePath => {
 
   // Stringify and sanitize output to make human-readable
   const log = output.reduce((log, input) => {
-    const line = input.replace(/\\.*$|@(\[|[a-z])|@:\d+,\d+:@\]/g, '');
+    let line = input
+      // Remove escape sequences
+      .replace(/\\.*$/, '')
+      // Fix extraneous hint whitespace
+      .replace(/\(\s/g, '(')
+      // Enclose card names
+      .replace(/@(\[|[a-z])/g, '[')
+      .replace(/@:\d+,\d+:@\]/g, ']');
 
-    log += `${line}\n`;
+    // Truncate player character sequences
+    if (/Turn \d+:\s/.test(line)) {
+      const [front, rest] = line.split(/:\s/);
+
+      const activePlayer = usernames.find(username => rest.includes(username));
+
+      line = `${front}: ${activePlayer}`;
+    }
+
+    // Early return for empty lines
+    if (!line || line === '') return log;
+
+    // Append line to log output
+    log += `${line}.\n`;
 
     return log;
   }, '');
@@ -162,7 +182,9 @@ export const validateMatch = async (matchLog, matchIndex = 0) => {
   const xmlDoc = new JSDOM(xml, { contentType: 'text/xml' }).window.document;
 
   // Get match context
-  const match = Array.from(xmlDoc.getElementsByTagName('PersistedFilter'))[matchIndex];
+  const match = Array.from(xmlDoc.getElementsByTagName('PersistedFilter')).reverse()[
+    matchIndex
+  ];
   if (!match) return matchLog;
 
   // Parse tournament props

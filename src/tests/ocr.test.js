@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { evaluateImage } from 'worker';
+import { evaluateImage } from 'ocr';
 
 describe('ocr', () => {
   it('Reads an image', async () => {

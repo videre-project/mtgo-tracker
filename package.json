@@ -34,15 +34,16 @@
     "wait-on": "^5.2.1"
   },
   "dependencies": {
+    "canvas": "^2.7.0",
     "classnames": "^2.2.6",
     "event-stream": "^4.0.1",
     "glob": "^7.1.6",
     "jsdom": "^16.5.1",
+    "ocrad.js": "^0.0.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
     "react-transition-group": "^4.4.1",
-    "tesseract.js": "^2.1.4",
     "three": "^0.126.1",
     "worker-loader": "^3.0.8"
   },

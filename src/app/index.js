@@ -34,7 +34,7 @@ const App = () => {
     if (!prerender && window.tracker) {
       unsubscribe = window.tracker.subscribe('match-update', matches => {
         fetchMatches(matches, match => {
-          if (!mounted) return;
+          if (!mounted || !match) return;
 
           console.info('match-update', match.id);
 

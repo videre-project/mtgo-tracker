@@ -84,7 +84,8 @@
     "copyright": "© 2020-2021 Videre Project",
     "files": [
       "**/*",
-      "public/preload.js"
+      "public/preload.js",
+      "public/*.traineddata.gz"
     ],
     "directories": {
       "buildResources": "public"

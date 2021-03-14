@@ -1,7 +1,11 @@
-const { join } = require('path');
-const { statSync, createReadStream } = require('fs');
-const { split, mapSync } = require('event-stream');
-const { JSDOM } = require('jsdom');
+import { split, mapSync } from 'event-stream';
+import { JSDOM } from 'jsdom';
+
+// Run-time dependencies
+const requireAtRuntime =
+  typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require; // eslint-disable-line
+const { join } = requireAtRuntime('path');
+const { statSync, createReadStream } = requireAtRuntime('fs');
 
 /**
  * Creates a file stream, returning a promise.
@@ -9,7 +13,7 @@ const { JSDOM } = require('jsdom');
  * @param {String} [encoding='utf8'] Target file encoding. Defaults to `utf8`.
  * @returns {Promise<String>} A promise, resolving with stringified file contents.
  */
-const scan = (file, encoding = 'utf8') => {
+export const scan = (file, encoding = 'utf8') => {
   let output = '';
 
   return new Promise((resolve, reject) => {
@@ -27,7 +31,7 @@ const scan = (file, encoding = 'utf8') => {
  * Parses and validates match data by file path
  * @param {String} filePath Match log file path to read & parse
  */
-const parseMatch = async filePath => {
+export const parseMatch = async filePath => {
   const data = await scan(filePath);
 
   // Remove utf8 errors and get game actions
@@ -136,7 +140,7 @@ const parseMatch = async filePath => {
  * @param {HTMLElement} parent XML parent to parse
  * @param {string} selector XML property to select
  */
-const parse = (parent, selector) => {
+export const parse = (parent, selector) => {
   const element = parent.querySelector(`${selector} *[IsSet=true] Value`);
 
   return element ? element.textContent : null;
@@ -147,7 +151,7 @@ const parse = (parent, selector) => {
  * @param {{ id: string, filePath: string }} matchLog Parsed match data
  * @param {Number} [matchIndex] Match index to validate in recentFilters. Default is `0`.
  */
-const validateMatch = async (matchLog, matchIndex = 0) => {
+export const validateMatch = async (matchLog, matchIndex = 0) => {
   if (!matchLog?.filePath) return;
 
   // Get match path from matchLog.filePath
@@ -183,11 +187,4 @@ const validateMatch = async (matchLog, matchIndex = 0) => {
     tournamentType,
     ...matchLog,
   };
-};
-
-module.exports = {
-  scan,
-  parseMatch,
-  parse,
-  validateMatch,
 };

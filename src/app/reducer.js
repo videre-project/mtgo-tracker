@@ -1,4 +1,5 @@
 export const initialState = {
+  location: '/',
   matches: [],
 };
 
@@ -6,12 +7,10 @@ export function reducer(state, action) {
   const { type, value } = action;
 
   switch (type) {
-    case 'setMatches': {
-      if (!Array.isArray(value)) return state;
-
-      window.localStorage.setItem('matches', JSON.stringify(value));
+    case 'setLocation':
+      return { ...state, location: value };
+    case 'setMatches':
       return { ...state, matches: value };
-    }
     case 'updateMatch': {
       const matches = state.matches.reduce((matches, match) => {
         if (!match?.id) return matches;
@@ -20,8 +19,6 @@ export function reducer(state, action) {
 
         return matches;
       }, []);
-
-      window.localStorage.setItem('matches', JSON.stringify(matches));
 
       return { ...state, matches };
     }

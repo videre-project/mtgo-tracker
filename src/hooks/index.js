@@ -3,7 +3,6 @@ import useFormInput from './useFormInput';
 import useId from './useId';
 import useInterval from './useInterval';
 import useInViewport from './useInViewport';
-import useLocalStorage from './useLocalStorage';
 import useParallax from './useParallax';
 import usePrefersColorScheme from './usePrefersColorScheme';
 import usePrefersReducedMotion from './usePrefersReducedMotion';
@@ -17,7 +16,6 @@ export {
   useId,
   useInterval,
   useInViewport,
-  useLocalStorage,
   useParallax,
   usePrefersColorScheme,
   usePrefersReducedMotion,

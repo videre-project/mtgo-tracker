@@ -3,7 +3,6 @@ const { format } = require('url');
 const { join } = require('path');
 const { sync } = require('glob');
 const { statSync, watchFile } = require('fs');
-const { updateMatches } = require('./worker');
 
 // Enable GPU
 app.commandLine.appendSwitch('force_high_performance_gpu');
@@ -41,6 +40,7 @@ app.on('ready', () => {
     icon: join(__dirname, '../public/icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
+      nodeIntegrationInWorker: true,
       contextIsolation: true,
       preload: join(__dirname, '../public/preload.js'),
     },
@@ -56,10 +56,30 @@ app.on('ready', () => {
     });
   mainWindow.loadURL(startUrl);
 
+  // Previous match results
+  const previousMatches = {};
+
   const handleMatchSync = () => {
-    updateMatches(PATH, match => {
-      mainWindow.webContents.send('match-update', match);
-    });
+    const needsUpdate = sync(join(PATH, 'Match_GameLog_**.dat')).reduce(
+      (matches, filePath, index) => {
+        const id = filePath.replace(/.*Match_GameLog_|\.dat$/g, '');
+        const match = { id, filePath, index, ...statSync(filePath) };
+        const previousMatch = previousMatches[id];
+
+        if (!previousMatch || match.ctime > previousMatch.ctime) {
+          matches.push(match);
+
+          previousMatches[id] = match;
+        }
+
+        return matches;
+      },
+      []
+    );
+
+    if (needsUpdate.length) {
+      mainWindow.webContents.send('match-update', needsUpdate);
+    }
   };
 
   // Init MTGO daemon

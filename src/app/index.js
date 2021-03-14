@@ -5,8 +5,8 @@ import ThemeProvider from 'components/ThemeProvider';
 import VisuallyHidden from 'components/VisuallyHidden';
 import { tokens } from 'components/ThemeProvider/theme';
 import { msToNum } from 'utils/style';
-import { useLocalStorage } from 'hooks';
 import { initialState, reducer } from 'app/reducer';
+import { fetchMatches } from 'worker';
 import { reflow } from 'utils/transition';
 import prerender from 'utils/prerender';
 import './reset.css';
@@ -18,7 +18,6 @@ export const TransitionContext = createContext();
 const repoPrompt = `\u00A9 2020-${new Date().getFullYear()} Videre Project\n\nCheck out the source code: https://github.com/videre-project/videre-tracker\n\n`;
 
 const App = () => {
-  const [storedMatches] = useLocalStorage('matches', []);
   const [state, dispatch] = useReducer(reducer, initialState);
   const { location } = state;
 
@@ -29,26 +28,24 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (!prerender) {
-      console.info('storedMatches', storedMatches);
-    }
-
-    dispatch({ type: 'setMatches', value: storedMatches });
-  }, [storedMatches]);
-
-  useEffect(() => {
     let unsubscribe;
+    let mounted = true;
 
     if (!prerender && window.tracker) {
-      unsubscribe = window.tracker.subscribe('matches', matches => {
-        console.info('matches', matches);
+      unsubscribe = window.tracker.subscribe('match-update', matches => {
+        fetchMatches(matches, match => {
+          if (!mounted) return;
 
-        dispatch({ type: 'setMatches', value: matches });
+          console.info('match-update', match.id);
+
+          dispatch({ type: 'updateMatch', value: match });
+        });
       });
     }
 
     return () => {
       if (unsubscribe) unsubscribe();
+      mounted = false;
     };
   }, []);
 
@@ -66,9 +63,7 @@ const App = () => {
           >
             {status => (
               <TransitionContext.Provider value={{ status }}>
-                <div className={classNames('app__page', `app__page--${status}`)}>
-                  {/* Routes */}
-                </div>
+                <div className={classNames('app__page', `app__page--${status}`)} />
               </TransitionContext.Provider>
             )}
           </Transition>

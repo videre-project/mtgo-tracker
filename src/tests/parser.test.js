@@ -1,11 +1,17 @@
-import parser from 'parser';
+import { readdirSync } from 'fs';
 import { join } from 'path';
+import { parseMatch, validateMatch } from 'worker/parser';
 
 describe('parser', () => {
   let match;
 
-  beforeAll(() => {
-    match = parser(join(__dirname, 'data'))[0];
+  beforeAll(async () => {
+    const log = readdirSync(join(__dirname, 'data')).find(file =>
+      file.startsWith('Match_GameLog_')
+    );
+
+    const matchData = await parseMatch(join(__dirname, 'data', log));
+    match = await validateMatch(matchData);
   });
 
   it('gets tournament data', () => {

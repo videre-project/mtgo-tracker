@@ -19,7 +19,7 @@
     "@testing-library/react": "^11.1.5",
     "@testing-library/user-event": "^12.8.3",
     "concurrently": "^6.0.0",
-    "electron": "^12.0.0",
+    "electron": "^12.0.1",
     "electron-builder": "^22.10.5",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
@@ -35,13 +35,15 @@
   },
   "dependencies": {
     "classnames": "^2.2.6",
+    "event-stream": "^4.0.1",
     "glob": "^7.1.6",
-    "jsdom": "^16.5.0",
+    "jsdom": "^16.5.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
     "react-transition-group": "^4.4.1",
-    "three": "^0.126.1"
+    "three": "^0.126.1",
+    "worker-loader": "^3.0.8"
   },
   "scripts": {
     "start": "concurrently \"set BROWSER=none && react-scripts start\" \"wait-on http://localhost:3000 && set ELECTRON_START_URL=http://localhost:3000 && electron .\"",
@@ -56,6 +58,11 @@
     "lint-fix": "eslint src --fix && prettier src --write",
     "storybook": "start-storybook -p 9009 -s public",
     "analyze": "source-map-explorer 'build/static/js/*.js'"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "\\.worker.js": "src/tests/__mocks__/worker.js"
+    }
   },
   "reactSnap": {
     "puppeteerArgs": [
@@ -74,6 +81,10 @@
     "appId": "com.videreproject.videre-tracker",
     "productName": "Videre Tracker",
     "copyright": "© 2020-2021 Videre Project",
+    "files": [
+      "**/*",
+      "public/preload.js"
+    ],
     "directories": {
       "buildResources": "public"
     },

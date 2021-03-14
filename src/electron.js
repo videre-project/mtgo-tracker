@@ -3,7 +3,6 @@ const { format } = require('url');
 const { join } = require('path');
 const { sync } = require('glob');
 const { statSync, watchFile } = require('fs');
-const parser = require('./parser');
 
 // Enable GPU
 app.commandLine.appendSwitch('force_high_performance_gpu');
@@ -18,10 +17,15 @@ const PATH = join(
 );
 
 // Select active RecentFilters.xml
-const [recentFilters] = sync(join(PATH, 'RecentFilters.xml'))
-  .map(name => ({ name, ...statSync(name) }))
-  .sort((a, b) => b.mtime - a.mtime)
-  .map(({ name }) => name);
+const recentFilters = sync(join(PATH, 'RecentFilters.xml')).reduce(
+  (activeFilter, filter) => {
+    if (statSync(filter).mtime > statSync(activeFilter).mtime) {
+      activeFilter = filter;
+    }
+
+    return activeFilter;
+  }
+);
 
 // Initialize main window (UI)
 let mainWindow;
@@ -36,6 +40,7 @@ app.on('ready', () => {
     icon: join(__dirname, '../public/icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
+      nodeIntegrationInWorker: true,
       contextIsolation: true,
       preload: join(__dirname, '../public/preload.js'),
     },
@@ -52,29 +57,35 @@ app.on('ready', () => {
   mainWindow.loadURL(startUrl);
 
   // Previous match results
-  let previousMatches;
+  const previousMatches = {};
 
-  // Send MTGO match data to app
-  const syncMatches = () => {
-    const matches = parser(PATH);
+  const handleMatchSync = () => {
+    const needsUpdate = sync(join(PATH, 'Match_GameLog_**.dat')).reduce(
+      (matches, filePath, index) => {
+        const id = filePath.replace(/.*Match_GameLog_|\.dat$/g, '');
+        const match = { id, filePath, index, ...statSync(filePath) };
+        const previousMatch = previousMatches[id];
 
-    const needsUpdate = matches?.some(match => {
-      const duplicate = previousMatches?.find(({ id }) => match.id === id);
-      if (!duplicate) return true;
+        if (!previousMatch || match.ctime > previousMatch.ctime) {
+          matches.push(match);
 
-      return JSON.stringify(match) !== JSON.stringify(duplicate);
-    });
+          previousMatches[id] = match;
+        }
 
-    if (needsUpdate) {
-      previousMatches = matches.slice(0);
-      mainWindow.webContents.send('matches', matches);
+        return matches;
+      },
+      []
+    );
+
+    if (needsUpdate.length) {
+      mainWindow.webContents.send('match-update', needsUpdate);
     }
   };
 
   // Init MTGO daemon
   mainWindow.webContents.on('did-finish-load', () => {
-    watchFile(recentFilters, syncMatches);
-    syncMatches();
+    watchFile(recentFilters, handleMatchSync);
+    handleMatchSync();
   });
 
   // Open devtools on local
@@ -89,7 +100,7 @@ app.on('ready', () => {
       {
         label: 'Update Matches',
         click: () => {
-          syncMatches();
+          handleMatchSync();
         },
       },
       { label: 'Separator', type: 'separator' },

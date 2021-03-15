@@ -34,7 +34,6 @@
     "wait-on": "^5.2.1"
   },
   "dependencies": {
-    "canvas": "^2.7.0",
     "classnames": "^2.2.6",
     "event-stream": "^4.0.1",
     "glob": "^7.1.6",

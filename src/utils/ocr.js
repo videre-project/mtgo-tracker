@@ -1,15 +1,18 @@
 import ocrad from 'ocrad.js';
-import { Image, createCanvas as Canvas } from 'canvas';
 
 /**
  * Loads and evaluates an image by src
  * @param {String | Buffer} src Target image src
+ * @returns {String} Parsed text output
  */
 export const evaluateImage = src => {
-  const image = new Image();
+  const image = document.createElement('img');
   image.src = src;
 
-  const canvas = new Canvas(image.width, image.height);
+  const canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+
   const ctx = canvas.getContext('2d');
   ctx.drawImage(image, 0, 0, image.width, image.height);
 

@@ -16,23 +16,6 @@ export const fetchMatches = (files, callback) => {
       callback(data);
     };
 
-    worker.postMessage({ type: 'match', ...file });
+    worker.postMessage(file);
   });
-};
-
-/**
- * Dispatches a worker to parse and evaluate an image
- * @param {String} src An image file location to parse
- * @param {Function} callback A callback to execute after evaluation
- */
-export const evaluateImage = (src, callback) => {
-  const worker = new Worker();
-
-  worker.onmessage = ({ data }) => {
-    worker.terminate();
-
-    callback(data);
-  };
-
-  worker.postMessage({ type: 'ocr', src });
 };

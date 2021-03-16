@@ -3,8 +3,8 @@
   "description": "Serverless functions for videre tracker",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest ./*.js --watchAll --verbose",
-    "test:ci": "jest ./*.js --verbose"
+    "test": "jest tests --watchAll --verbose",
+    "test:ci": "jest tests --verbose"
   },
   "dependencies": {
     "dompurify": "^2.2.7",

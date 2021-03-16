@@ -6,7 +6,7 @@ const { format } = require('url');
 // Configure app protocol
 app.setAsDefaultProtocolClient('videre-tracker');
 
-// Get the active MTGO directory
+// Select the active MTGO directory
 const entry = join(process.env.USERPROFILE, '/AppData/Local/Apps/2.0/Data');
 const activeDirectory = readdirSync(entry).reduce((path, directory) => {
   const [version] = readdirSync(join(entry, directory));
@@ -28,11 +28,13 @@ const activeDirectory = readdirSync(entry).reduce((path, directory) => {
 // Identify active user
 const UUID = '1821797BF9EDB2222B751BDDE8D9A057';
 
-// Select active working directory
+// Active user directory
 const PATH = join(activeDirectory, 'Data/AppFiles', UUID);
 
-// Select active RecentFilters.xml
-const recentFilters = join(PATH, 'RecentFilters.xml');
+// Temporary fix broken high-dpi scale factor on Windows (125% scaling)
+// Related: https://github.com/electron/electron/issues/9691
+app.commandLine.appendSwitch('high-dpi-support', 'true');
+app.commandLine.appendSwitch('force-device-scale-factor', '1');
 
 // Initialize main window (UI)
 let mainWindow;
@@ -92,7 +94,7 @@ app.on('ready', () => {
 
   // Init MTGO daemon
   mainWindow.webContents.on('did-finish-load', () => {
-    watchFile(recentFilters, handleMatchSync);
+    watchFile(join(PATH, 'RecentFilters.xml'), handleMatchSync);
     handleMatchSync();
   });
 
@@ -116,21 +118,11 @@ app.on('ready', () => {
         label: 'Quit',
         role: 'quit',
         click: () => {
-          app.isQuiting = true;
-          app.quit();
+          mainWindow.close();
         },
       },
     ])
   );
-
-  // Minimize-to-tray behavior
-  mainWindow.on('close', event => {
-    if (!app.isQuiting) {
-      event.preventDefault();
-
-      mainWindow.hide();
-    }
-  });
 
   // Dereference the window object on cleanup
   mainWindow.on('closed', () => (mainWindow = tray = null));

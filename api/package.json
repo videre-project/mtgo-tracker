@@ -1,0 +1,17 @@
+{
+  "name": "api",
+  "description": "Serverless functions for videre tracker",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "dompurify": "^2.2.7",
+    "jsdom": "^16.5.1",
+    "tesseract.js-core": "^2.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.22.0",
+    "eslint-plugin-promise": "^4.3.1"
+  },
+  "private": true
+}

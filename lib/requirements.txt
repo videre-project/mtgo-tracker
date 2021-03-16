@@ -1,2 +1,0 @@
-opencv-python==4.5.1.48
-easyocr==1.2.5.1

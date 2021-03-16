@@ -9,7 +9,9 @@ const LOCALES = ['eng', 'fas', 'mri', 'slk_frak'];
 const window = new JSDOM('').window;
 const DOMPurify = createDOMPurify(window);
 
-const Int32 = bytes => (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+const toInt32 = bytes => (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+const toBuffer = base64 =>
+  Buffer.from(base64.startsWith('data') ? base64.split(',')[1] : base64, 'base64');
 
 module.exports = async (req, res) => {
   try {
@@ -20,16 +22,20 @@ module.exports = async (req, res) => {
     // Validate OCR request
     if (!image) {
       return res.status(400).json({ error: 'Image not specified' });
-    } else if (!/data:image\/([a-zA-Z]*);base64,([^\\"]*)/.test(image)) {
-      return res.status(400).json({ error: 'Image must be base64 PNG' });
+    } else if (
+      !Buffer.isBuffer(image) &&
+      !/^data:image\/([a-zA-Z]*);base64,([^\\"]*)$/.test(image) &&
+      !/^(?:[\w+/]{4})*(?:[\w+/]{2}==|[\w+/]{3}=)?$/.test(image)
+    ) {
+      return res.status(400).json({ error: 'Image must be Uint8Array or base64 PNG' });
     } else if (!LOCALES.includes(locale)) {
       return res.status(400).json({ error: 'Locale not supported' });
     }
 
     // Parse image data
-    const data = Buffer.from(image, 'base64');
-    const width = Int32(image.slice(16, 20));
-    const height = Int32(image.slice(20, 24));
+    const data = Buffer.isBuffer(image) ? image : toBuffer(image);
+    const width = toInt32(data.slice(16, 20));
+    const height = toInt32(data.slice(20, 24));
 
     // Load WASM module
     const tesseract = await loadTesseract();

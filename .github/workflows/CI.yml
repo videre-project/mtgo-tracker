@@ -31,3 +31,22 @@ jobs:
         run: npm run build
         env:
           SKIP_PREFLIGHT_CHECK: true
+  test-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Select working directory
+        run: cd api
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm run test:ci
+
+      - name: Check for regressions
+        run: npm run lint

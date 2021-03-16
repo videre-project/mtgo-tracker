@@ -6,8 +6,8 @@ const { normalize } = require('path');
 
 const LOCALES = ['eng', 'fas', 'mri', 'slk_frak'];
 
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window);
+const { window } = new JSDOM('');
+const { sanitize } = createDOMPurify(window);
 
 const toInt32 = bytes => (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
 const toBuffer = base64 =>
@@ -16,8 +16,8 @@ const toBuffer = base64 =>
 module.exports = async (req, res) => {
   try {
     // Sanitize input
-    const image = DOMPurify.sanitize(req.body.image);
-    const locale = DOMPurify.sanitize(req.body.locale).toLowerCase() || 'eng';
+    const image = sanitize(req.body.image);
+    const locale = sanitize(req.body.locale).toLowerCase() || 'eng';
 
     // Validate OCR request
     if (!image) {

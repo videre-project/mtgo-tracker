@@ -156,7 +156,7 @@ export const parseMatch = async filePath => {
 /**
  * Reads properties from XML parent
  * @param {HTMLElement} parent XML parent to parse
- * @param {string} selector XML property to select
+ * @param {String} selector XML property to select
  */
 export const parse = (parent, selector) => {
   const element = parent.querySelector(`${selector} *[IsSet=true] Value`);
@@ -166,7 +166,7 @@ export const parse = (parent, selector) => {
 
 /**
  * Syncs match data with RecentFilters.xml
- * @param {{ id: string, filePath: string }} matchLog Parsed match data
+ * @param {{ id: String, filePath: String }} matchLog Parsed match data
  * @param {Number} [matchIndex] Match index to validate in recentFilters. Default is `0`.
  */
 export const validateMatch = async (matchLog, matchIndex = 0) => {
@@ -198,6 +198,10 @@ export const validateMatch = async (matchLog, matchIndex = 0) => {
   const formatType = parse(match, 'DeckCreationStyle');
   const tournamentType = parse(match, 'TournamentStructureValue');
 
+  // Parse event props
+  const { IsAvailable } = match.querySelector('TournamentStructureValue').attributes;
+  const premier = IsAvailable?.value === 'true';
+
   return {
     name,
     level,
@@ -205,6 +209,7 @@ export const validateMatch = async (matchLog, matchIndex = 0) => {
     format,
     formatType,
     tournamentType,
+    premier,
     ...matchLog,
   };
 };

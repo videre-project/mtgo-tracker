@@ -37,17 +37,15 @@ module.exports = async (req, res) => {
     // Init API
     const api = new tesseract.TessBaseAPI();
 
-    // Parse training and input data
-    const buffer = readFileSync(normalize(`./data/${locale}.traineddata`));
-    const picture = tesseract._malloc(data.length * Uint8Array.BYTES_PER_ELEMENT);
-
     // Set temp data
+    const buffer = readFileSync(normalize(`./data/${locale}.traineddata`));
+    const size = tesseract._malloc(data.length * Uint8Array.BYTES_PER_ELEMENT);
     tesseract.FS.writeFile(`${locale}.traineddata`, buffer);
-    tesseract.HEAPU8.set(data, picture);
+    tesseract.HEAPU8.set(data, size);
 
     // Set job
     api.Init(null, locale);
-    api.SetImage(picture, width, height, Uint8Array.BYTES_PER_ELEMENT, width);
+    api.SetImage(size, width, height, Uint8Array.BYTES_PER_ELEMENT, width);
     api.SetRectangle(0, 0, width, height);
 
     // Extract text
@@ -56,7 +54,7 @@ module.exports = async (req, res) => {
     // Cleanup
     api.End();
     tesseract.destroy(api);
-    tesseract._free(picture);
+    tesseract._free(size);
 
     return res.status(200).json(text);
   } catch (error) {

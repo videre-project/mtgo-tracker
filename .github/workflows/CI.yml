@@ -39,14 +39,14 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Select working directory
-        run: cd api
-
       - name: Install dependencies
         run: npm install
+        working-directory: api
 
       - name: Run tests
         run: npm run test:ci
+        working-directory: api
 
       - name: Check for regressions
         run: npm run lint
+        working-directory: api

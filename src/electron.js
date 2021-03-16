@@ -8,25 +8,22 @@ app.setAsDefaultProtocolClient('videre-tracker');
 
 // Select the active MTGO directory
 const entry = join(process.env.USERPROFILE, '/AppData/Local/Apps/2.0/Data');
-const activeDirectory = readdirSync(entry).reduce((path, directory) => {
-  const [version] = readdirSync(join(entry, directory));
-  const root = join(entry, directory, version);
+const [directory] = readdirSync(entry);
+const [version] = readdirSync(join(entry, directory));
+const root = join(entry, directory, version);
 
-  const update = readdirSync(root).reduce((current, next) => {
-    if (statSync(join(root, current)).ctime < statSync(join(root, next)).ctime) {
-      current = next;
-    }
+const update = readdirSync(root).reduce((current, next) => {
+  if (statSync(join(root, current)).ctime < statSync(join(root, next)).ctime) {
+    current = next;
+  }
 
-    return current;
-  });
+  return current;
+});
 
-  path = join(root, update);
-
-  return path;
-}, '');
+const activeDirectory = join(root, update);
 
 // Identify active user
-const UUID = '1821797BF9EDB2222B751BDDE8D9A057';
+const UUID = process.env.MTGO_USER || '1821797BF9EDB2222B751BDDE8D9A057';
 
 // Active user directory
 const PATH = join(activeDirectory, 'Data/AppFiles', UUID);

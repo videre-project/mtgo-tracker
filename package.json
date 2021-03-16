@@ -36,7 +36,6 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "event-stream": "^4.0.1",
-    "glob": "^7.1.6",
     "jsdom": "^16.5.1",
     "ocrad.js": "^0.0.1",
     "react": "^17.0.1",

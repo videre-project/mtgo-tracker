@@ -36,7 +36,7 @@ const App = () => {
         fetchMatches(matches, match => {
           if (!mounted || !match) return;
 
-          console.info('match-update', match.id);
+          console.info('match-update', match);
 
           dispatch({ type: 'updateMatch', value: match });
         });

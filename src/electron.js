@@ -1,31 +1,38 @@
+const { join } = require('path');
+const { readdirSync, statSync, watchFile } = require('fs');
 const { BrowserWindow, app, Tray, Menu } = require('electron');
 const { format } = require('url');
-const { join } = require('path');
-const { sync } = require('glob');
-const { statSync, watchFile } = require('fs');
-
-// Enable GPU
-app.commandLine.appendSwitch('force_high_performance_gpu');
 
 // Configure app protocol
 app.setAsDefaultProtocolClient('videre-tracker');
 
-// Set default path to Windows MTGO path
-const PATH = join(
-  process.env.USERPROFILE,
-  '/AppData/Local/Apps/2.0/Data/**/**/**/Data/AppFiles/**'
-);
+// Get the active MTGO directory
+const entry = join(process.env.USERPROFILE, '/AppData/Local/Apps/2.0/Data');
+const activeDirectory = readdirSync(entry).reduce((path, directory) => {
+  const [version] = readdirSync(join(entry, directory));
+  const root = join(entry, directory, version);
 
-// Select active RecentFilters.xml
-const recentFilters = sync(join(PATH, 'RecentFilters.xml')).reduce(
-  (activeFilter, filter) => {
-    if (statSync(filter).mtime > statSync(activeFilter).mtime) {
-      activeFilter = filter;
+  const update = readdirSync(root).reduce((current, next) => {
+    if (statSync(join(root, current)).ctime < statSync(join(root, next)).ctime) {
+      current = next;
     }
 
-    return activeFilter;
-  }
-);
+    return current;
+  });
+
+  path = join(root, update);
+
+  return path;
+}, '');
+
+// Identify active user
+const UUID = '1821797BF9EDB2222B751BDDE8D9A057';
+
+// Select active working directory
+const PATH = join(activeDirectory, 'Data/AppFiles', UUID);
+
+// Select active RecentFilters.xml
+const recentFilters = join(PATH, 'RecentFilters.xml');
 
 // Initialize main window (UI)
 let mainWindow;
@@ -47,35 +54,36 @@ app.on('ready', () => {
   });
 
   // Connect client to app
-  const startUrl =
+  const startURL =
     process.env.ELECTRON_START_URL ||
     format({
       pathname: join(__dirname, '../build/index.html'),
       protocol: 'file:',
       slashes: true,
     });
-  mainWindow.loadURL(startUrl);
+  mainWindow.loadURL(startURL);
 
   // Previous match results
-  const previousMatches = {};
+  const previousMatches = new Map();
 
   const handleMatchSync = () => {
-    const needsUpdate = sync(join(PATH, 'Match_GameLog_**.dat')).reduce(
-      (matches, filePath, index) => {
-        const id = filePath.replace(/.*Match_GameLog_|\.dat$/g, '');
-        const match = { id, filePath, index, ...statSync(filePath) };
-        const previousMatch = previousMatches[id];
+    const needsUpdate = readdirSync(PATH).reduce((matches, file, index) => {
+      if (!/Match_GameLog_.*\.dat$/.test(file)) return matches;
 
-        if (!previousMatch || match.ctime > previousMatch.ctime) {
-          matches.push(match);
+      const id = file.replace(/Match_GameLog_|\.dat/g, '');
+      const filePath = join(PATH, file);
 
-          previousMatches[id] = match;
-        }
+      const match = { id, filePath, index, ...statSync(filePath) };
+      const previousMatch = previousMatches.get(id);
 
-        return matches;
-      },
-      []
-    );
+      if (!previousMatch || match.ctime > previousMatch.ctime) {
+        matches.push(match);
+
+        previousMatches.set(id, match);
+      }
+
+      return matches;
+    }, []);
 
     if (needsUpdate.length) {
       mainWindow.webContents.send('match-update', needsUpdate);

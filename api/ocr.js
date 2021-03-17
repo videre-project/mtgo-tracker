@@ -24,10 +24,11 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Image not specified' });
     } else if (
       !Buffer.isBuffer(image) &&
-      !/^data:image\/([a-zA-Z]*);base64,([^\\"]*)$/.test(image) &&
-      !/^(?:[\w+/]{4})*(?:[\w+/]{2}==|[\w+/]{3}=)?$/.test(image)
+      !/^(data:image\/png;base64,)?(?:[\w+/]{4})*(?:[\w+/]{2}==|[\w+/]{3}=)?$/.test(image)
     ) {
-      return res.status(400).json({ error: 'Image must be Uint8Array or base64 PNG' });
+      return res
+        .status(400)
+        .json({ error: 'Image must be a Uint8Array or base64/base64url PNG' });
     } else if (!LOCALES.includes(locale)) {
       return res.status(400).json({ error: 'Locale not supported' });
     }
@@ -37,32 +38,31 @@ module.exports = async (req, res) => {
     const width = toInt32(data.slice(16, 20));
     const height = toInt32(data.slice(20, 24));
 
-    // Load WASM module
-    const tesseract = await loadTesseract();
+    loadTesseract().then(tesseract => {
+      // Init API
+      const api = new tesseract.TessBaseAPI();
 
-    // Init API
-    const api = new tesseract.TessBaseAPI();
+      // Set temp data
+      const buffer = readFileSync(normalize(`./data/${locale}.traineddata`));
+      const size = tesseract._malloc(data.length * Uint8Array.BYTES_PER_ELEMENT);
+      tesseract.FS.writeFile(`${locale}.traineddata`, buffer);
+      tesseract.HEAPU8.set(data, size);
 
-    // Set temp data
-    const buffer = readFileSync(normalize(`./data/${locale}.traineddata`));
-    const size = tesseract._malloc(data.length * Uint8Array.BYTES_PER_ELEMENT);
-    tesseract.FS.writeFile(`${locale}.traineddata`, buffer);
-    tesseract.HEAPU8.set(data, size);
+      // Set job
+      api.Init(null, locale);
+      api.SetImage(size, width, height, Uint8Array.BYTES_PER_ELEMENT, width);
+      api.SetRectangle(0, 0, width, height);
 
-    // Set job
-    api.Init(null, locale);
-    api.SetImage(size, width, height, Uint8Array.BYTES_PER_ELEMENT, width);
-    api.SetRectangle(0, 0, width, height);
+      // Extract text
+      const text = api.GetUTF8Text();
 
-    // Extract text
-    const text = api.GetUTF8Text();
+      // Cleanup
+      api.End();
+      tesseract.destroy(api);
+      tesseract._free(size);
 
-    // Cleanup
-    api.End();
-    tesseract.destroy(api);
-    tesseract._free(size);
-
-    return res.status(200).json(text);
+      return res.status(200).json(text);
+    });
   } catch (error) {
     console.error('Rejected', error);
     return res.status(500).json({ error: 'Image rejected' });

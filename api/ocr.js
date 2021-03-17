@@ -1,7 +1,5 @@
 const { JSDOM } = require('jsdom');
 const createDOMPurify = require('dompurify');
-const fetch = require('node-fetch');
-const { rotate } = require('jpeg-autorotate');
 const loadTesseract = require('tesseract.js-core');
 const { readFileSync } = require('fs');
 const { normalize } = require('path');
@@ -16,30 +14,6 @@ const toBuffer = base64 =>
 
 const toInt32 = bytes => (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
 
-const parseImage = async src => {
-  let image;
-
-  if (Buffer.isBuffer(src)) {
-    image = src;
-  } else if (src.startsWith('http')) {
-    const response = await fetch(src);
-
-    image = await response.arrayBuffer();
-  } else {
-    image = toBuffer(src);
-  }
-
-  try {
-    image = (await rotate(image, { quality: 100 })).buffer;
-  } catch (_) {} // eslint-disable-line
-
-  const data = new Uint8Array(image);
-  const width = toInt32(image.slice(16, 20));
-  const height = toInt32(image.slice(20, 24));
-
-  return { data, width, height };
-};
-
 module.exports = async (req, res) => {
   try {
     // Sanitize input
@@ -51,19 +25,20 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Image not specified' });
     } else if (
       typeof image !== 'string' &&
-      !image.startsWith('http') &&
       !Buffer.isBuffer(image) &&
       !/^(data:image\/png;base64,)?(?:[\w+/]{4})*(?:[\w+/]{2}==|[\w+/]{3}=)?$/.test(image)
     ) {
       return res
         .status(400)
-        .json({ error: 'Image must be a URL, Buffer, or base64/base64url PNG' });
+        .json({ error: 'Image must be a Buffer or base64/base64url PNG' });
     } else if (!LOCALES.includes(locale)) {
       return res.status(400).json({ error: 'Locale not supported' });
     }
 
     // Parse image data
-    const { data, width, height } = await parseImage(image);
+    const data = new Uint8Array(Buffer.isBuffer(image) ? image : toBuffer(image));
+    const width = toInt32(data.slice(16, 20));
+    const height = toInt32(data.slice(20, 24));
 
     loadTesseract().then(tesseract => {
       // Init API

@@ -3,12 +3,14 @@
   "description": "Serverless functions for videre tracker",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest tests --watchAll --verbose",
-    "test:ci": "jest tests --verbose"
+    "test": "jest tests --watchAll --verbose --silent",
+    "test:ci": "jest tests --verbose --silent"
   },
   "dependencies": {
     "dompurify": "^2.2.7",
+    "jpeg-autorotate": "^7.1.1",
     "jsdom": "^16.5.1",
+    "node-fetch": "^2.6.1",
     "tesseract.js-core": "^2.2.0"
   },
   "devDependencies": {

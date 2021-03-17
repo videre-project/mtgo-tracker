@@ -9,7 +9,7 @@ describe('/ocr', () => {
   app.post('/', require('../ocr'));
 
   it('Reads an base64 image', async () => {
-    const image = readFileSync(join(__dirname, '../data/title_bar.png'), 'base64');
+    const image = readFileSync(join(__dirname, 'data/title_bar.png'), 'base64');
 
     const response = await request(app).post('/').send({ image });
 
@@ -19,7 +19,7 @@ describe('/ocr', () => {
   });
 
   it('Reads an base64url image', async () => {
-    const data = readFileSync(join(__dirname, '../data/title_bar.png'), 'base64')
+    const data = readFileSync(join(__dirname, 'data/title_bar.png'), 'base64')
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/\\=+$/, '');
@@ -34,7 +34,7 @@ describe('/ocr', () => {
   });
 
   it('Reads a buffered image', async () => {
-    const image = readFileSync(join(__dirname, '../data/title_bar.png'));
+    const image = readFileSync(join(__dirname, 'data/title_bar.png'));
 
     const response = await request(app).post('/').send({ image });
 

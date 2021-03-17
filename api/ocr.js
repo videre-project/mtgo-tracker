@@ -2,9 +2,8 @@ const { JSDOM } = require('jsdom');
 const createDOMPurify = require('dompurify');
 const loadTesseract = require('tesseract.js-core');
 const { readFileSync } = require('fs');
-const { normalize } = require('path');
 
-const LOCALES = ['eng', 'fas', 'mri', 'slk_frak'];
+const LOCALE = 'eng';
 
 const { window } = new JSDOM('');
 const { sanitize } = createDOMPurify(window);
@@ -18,7 +17,6 @@ module.exports = async (req, res) => {
   try {
     // Sanitize input
     const image = sanitize(req.body.image);
-    const locale = sanitize(req.body.locale).toLowerCase() || 'eng';
 
     // Validate OCR request
     if (!image) {
@@ -31,8 +29,6 @@ module.exports = async (req, res) => {
       return res
         .status(400)
         .json({ error: 'Image must be a Buffer or base64/base64url PNG' });
-    } else if (!LOCALES.includes(locale)) {
-      return res.status(400).json({ error: 'Locale not supported' });
     }
 
     // Parse image data
@@ -45,13 +41,13 @@ module.exports = async (req, res) => {
       const api = new tesseract.TessBaseAPI();
 
       // Set temp data
-      const buffer = readFileSync(normalize(`./data/${locale}.traineddata`));
+      const buffer = readFileSync(`${LOCALE}.traineddata`);
       const size = tesseract._malloc(data.length * Uint8Array.BYTES_PER_ELEMENT);
-      tesseract.FS.writeFile(`${locale}.traineddata`, buffer);
+      tesseract.FS.writeFile(`${LOCALE}.traineddata`, buffer);
       tesseract.HEAPU8.set(data, size);
 
       // Set job
-      api.Init(null, locale);
+      api.Init(null, LOCALE);
       api.SetImage(size, width, height, Uint8Array.BYTES_PER_ELEMENT, width);
       api.SetRectangle(0, 0, width, height);
 

@@ -17,14 +17,8 @@ module.exports = async (req, res) => {
     // Validate OCR request
     if (!image) {
       return res.status(400).json({ error: 'Image not specified' });
-    } else if (
-      typeof image !== 'string' &&
-      !Buffer.isBuffer(image) &&
-      !/^(data:image\/png;base64,)?(?:[\w+/]{4})*(?:[\w+/]{2}==|[\w+/]{3}=)?$/.test(image)
-    ) {
-      return res
-        .status(400)
-        .json({ error: 'Image must be a Buffer or base64/base64url PNG' });
+    } else if (!Buffer.isBuffer(image) && !/data:image\/png;base64,([^"]*)/.test(image)) {
+      return res.status(400).json({ error: 'Image must be a Buffer or base64url PNG' });
     }
 
     // Parse image data

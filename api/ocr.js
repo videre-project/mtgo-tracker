@@ -2,16 +2,12 @@ const { JSDOM } = require('jsdom');
 const createDOMPurify = require('dompurify');
 const loadTesseract = require('tesseract.js-core');
 const { readFileSync } = require('fs');
+const { toBuffer, toInt32 } = require('./utils');
 
 const LOCALE = 'eng';
 
 const { window } = new JSDOM('');
 const { sanitize } = createDOMPurify(window);
-
-const toBuffer = base64 =>
-  Buffer.from(base64.startsWith('data') ? base64.split(',')[1] : base64, 'base64');
-
-const toInt32 = bytes => (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
 
 module.exports = async (req, res) => {
   try {

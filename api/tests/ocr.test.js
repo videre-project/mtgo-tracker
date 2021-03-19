@@ -1,6 +1,6 @@
 const { readFileSync } = require('fs');
 const { join } = require('path');
-const { fetch, toBase64URL, toBuffer } = require('../utils');
+const { fetch, toBase64URL } = require('../utils');
 
 describe('/ocr', () => {
   const ocr = require('../ocr');
@@ -11,17 +11,8 @@ describe('/ocr', () => {
     const response = await fetch(ocr).send({ image });
 
     expect(response.status).toBe(200);
-    expect(response.body).toMatch(/^Modern Showcase Challenge: Vs\. Parole/i);
-    expect(response.body).toMatch(/Event # 122669131 - Match # 237751908$/i);
-  });
-
-  it('Reads a buffered image', async () => {
-    const image = toBuffer(data);
-    const response = await fetch(ocr).send({ image });
-
-    expect(response.status).toBe(200);
-    expect(response.body).toMatch(/^Modern Showcase Challenge: Vs\. Parole/i);
-    expect(response.body).toMatch(/Event # 122669131 - Match # 237751908$/i);
+    expect(response.body.trim()).toMatch(/^Modern Showcase Challenge: Vs\. Parole/i);
+    expect(response.body.trim()).toMatch(/Event # 122669131 - Match # 237751908$/i);
   });
 
   it('Rejects on empty request', async () => {
@@ -37,7 +28,7 @@ describe('/ocr', () => {
   });
 
   it('Rejects on invalid image', async () => {
-    const image = `data:image/jpg;base64,${data}`;
+    const image = toBase64URL(data).replace('png', 'jpg');
     const response = await fetch(ocr).send({ image });
 
     expect(response.status).toBe(400);

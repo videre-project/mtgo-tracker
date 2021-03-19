@@ -2,7 +2,7 @@ const { JSDOM } = require('jsdom');
 const createDOMPurify = require('dompurify');
 const loadTesseract = require('tesseract.js-core');
 const { readFileSync } = require('fs');
-const { toUint8Array, toInt32 } = require('./utils');
+const { isBase64, toUint8Array, toInt32 } = require('./utils');
 
 const LOCALE = 'eng';
 
@@ -17,8 +17,8 @@ module.exports = async (req, res) => {
     // Validate OCR request
     if (!image) {
       return res.status(400).json({ error: 'Image not specified' });
-    } else if (!/data:image\/png;base64,[^"+/]*/.test(image)) {
-      return res.status(400).json({ error: 'Image must be a base64url PNG' });
+    } else if (!isBase64(image)) {
+      return res.status(400).json({ error: 'Image must be a base64 or base64url PNG' });
     }
 
     // Parse image data

@@ -1,22 +1,10 @@
-import ocrad from 'ocrad.js';
+export const toArrayBuffer = buffer => {
+  const data = new ArrayBuffer(buffer.length);
+  const view = new Uint8Array(data);
 
-/**
- * Loads and evaluates an image by src
- * @param {String | Buffer} src Target image src
- * @returns {String} Parsed text output
- */
-export const evaluateImage = src => {
-  const image = document.createElement('img');
-  image.src = src;
+  for (let i = 0; i < buffer.length; i++) {
+    view[i] = buffer[i];
+  }
 
-  const canvas = document.createElement('canvas');
-  canvas.width = image.width;
-  canvas.height = image.height;
-
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(image, 0, 0, image.width, image.height);
-
-  const text = ocrad(canvas);
-
-  return text;
+  return data;
 };

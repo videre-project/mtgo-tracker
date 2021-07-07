@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, desktopCapturer } = require('electron');
 
 contextBridge.exposeInMainWorld('tracker', {
   send: (channel, data) => {
@@ -12,4 +12,8 @@ contextBridge.exposeInMainWorld('tracker', {
       ipcRenderer.removeListener(channel, subscription);
     };
   },
+});
+
+contextBridge.exposeInMainWorld('ocr', {
+  getSources: () => desktopCapturer.getSources({ types: ['window'] }),
 });

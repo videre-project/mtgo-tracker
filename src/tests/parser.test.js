@@ -21,6 +21,7 @@ describe('parser', () => {
     expect(match.format).toBe('CFREEFORM');
     expect(match.formatType).toBe('Constructed');
     expect(match.tournamentType).toBe(null);
+    expect(match.premier).toBe(false);
   });
 
   it('gets match data', () => {

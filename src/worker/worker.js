@@ -7,5 +7,5 @@ onmessage = async ({ data }) => {
   const matchData = await parseMatch(filePath);
   const match = await validateMatch(matchData, index);
 
-  postMessage(match);
+  return postMessage(match);
 };

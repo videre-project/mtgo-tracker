@@ -1,31 +1,37 @@
+const { join } = require('path');
+const { readdirSync, statSync, watchFile } = require('fs');
 const { BrowserWindow, app, Tray, Menu } = require('electron');
 const { format } = require('url');
-const { join } = require('path');
-const { sync } = require('glob');
-const { statSync, watchFile } = require('fs');
-
-// Enable GPU
-app.commandLine.appendSwitch('force_high_performance_gpu');
 
 // Configure app protocol
 app.setAsDefaultProtocolClient('videre-tracker');
 
-// Set default path to Windows MTGO path
-const PATH = join(
-  process.env.USERPROFILE,
-  '/AppData/Local/Apps/2.0/Data/**/**/**/Data/AppFiles/**'
-);
+// Select the active MTGO directory
+const entry = join(process.env.USERPROFILE, '/AppData/Local/Apps/2.0/Data');
+const [directory] = readdirSync(entry);
+const [version] = readdirSync(join(entry, directory));
+const root = join(entry, directory, version);
 
-// Select active RecentFilters.xml
-const recentFilters = sync(join(PATH, 'RecentFilters.xml')).reduce(
-  (activeFilter, filter) => {
-    if (statSync(filter).mtime > statSync(activeFilter).mtime) {
-      activeFilter = filter;
-    }
-
-    return activeFilter;
+const update = readdirSync(root).reduce((current, next) => {
+  if (statSync(join(root, current)).ctime < statSync(join(root, next)).ctime) {
+    current = next;
   }
-);
+
+  return current;
+});
+
+const activeDirectory = join(root, update);
+
+// Identify active user
+const UUID = process.env.MTGO_USER || '1821797BF9EDB2222B751BDDE8D9A057';
+
+// Active user directory
+const PATH = join(activeDirectory, 'Data/AppFiles', UUID);
+
+// Temporary fix broken high-dpi scale factor on Windows (125% scaling)
+// Related: https://github.com/electron/electron/issues/9691
+app.commandLine.appendSwitch('high-dpi-support', 'true');
+app.commandLine.appendSwitch('force-device-scale-factor', '1');
 
 // Initialize main window (UI)
 let mainWindow;
@@ -47,35 +53,36 @@ app.on('ready', () => {
   });
 
   // Connect client to app
-  const startUrl =
+  const startURL =
     process.env.ELECTRON_START_URL ||
     format({
       pathname: join(__dirname, '../build/index.html'),
       protocol: 'file:',
       slashes: true,
     });
-  mainWindow.loadURL(startUrl);
+  mainWindow.loadURL(startURL);
 
   // Previous match results
-  const previousMatches = {};
+  const previousMatches = new Map();
 
   const handleMatchSync = () => {
-    const needsUpdate = sync(join(PATH, 'Match_GameLog_**.dat')).reduce(
-      (matches, filePath, index) => {
-        const id = filePath.replace(/.*Match_GameLog_|\.dat$/g, '');
-        const match = { id, filePath, index, ...statSync(filePath) };
-        const previousMatch = previousMatches[id];
+    const needsUpdate = readdirSync(PATH).reduce((matches, file, index) => {
+      if (!/Match_GameLog_.*\.dat$/.test(file)) return matches;
 
-        if (!previousMatch || match.ctime > previousMatch.ctime) {
-          matches.push(match);
+      const id = file.replace(/Match_GameLog_|\.dat/g, '');
+      const filePath = join(PATH, file);
 
-          previousMatches[id] = match;
-        }
+      const match = { id, filePath, index, ...statSync(filePath) };
+      const previousMatch = previousMatches.get(id);
 
-        return matches;
-      },
-      []
-    );
+      if (!previousMatch || match.ctime > previousMatch.ctime) {
+        matches.push(match);
+
+        previousMatches.set(id, match);
+      }
+
+      return matches;
+    }, []);
 
     if (needsUpdate.length) {
       mainWindow.webContents.send('match-update', needsUpdate);
@@ -84,7 +91,7 @@ app.on('ready', () => {
 
   // Init MTGO daemon
   mainWindow.webContents.on('did-finish-load', () => {
-    watchFile(recentFilters, handleMatchSync);
+    watchFile(join(PATH, 'RecentFilters.xml'), handleMatchSync);
     handleMatchSync();
   });
 
@@ -108,21 +115,11 @@ app.on('ready', () => {
         label: 'Quit',
         role: 'quit',
         click: () => {
-          app.isQuiting = true;
-          app.quit();
+          mainWindow.close();
         },
       },
     ])
   );
-
-  // Minimize-to-tray behavior
-  mainWindow.on('close', event => {
-    if (!app.isQuiting) {
-      event.preventDefault();
-
-      mainWindow.hide();
-    }
-  });
 
   // Dereference the window object on cleanup
   mainWindow.on('closed', () => (mainWindow = tray = null));

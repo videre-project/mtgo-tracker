@@ -1,9 +1,7 @@
 import { split, mapSync } from 'event-stream';
 import { JSDOM } from 'jsdom';
+import { requireAtRuntime } from 'utils/electron';
 
-// Run-time dependencies
-const requireAtRuntime =
-  typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require; // eslint-disable-line
 const { join } = requireAtRuntime('path');
 const { statSync, createReadStream } = requireAtRuntime('fs');
 
@@ -36,9 +34,9 @@ export const parseMatch = async filePath => {
 
   // Remove utf8 errors and get game actions
   const output = JSON.stringify(data)
-    .replace(/[^\040-\176\200-\377]/gi, '')
+    .replace(/\uFFFD/g, '')
     .split('@P')
-    .map(line => line?.replace(/\.[^.]*$/, '.'));
+    .map(line => line.replace(/(?:\.)([^.]|\\u.*)*$/, ''));
 
   // Parse match id
   const id = filePath.replace(/.*Match_GameLog_|\.dat/g, '');
@@ -118,9 +116,29 @@ export const parseMatch = async filePath => {
 
   // Stringify and sanitize output to make human-readable
   const log = output.reduce((log, input) => {
-    const line = input.replace(/\\.*$|@(\[|[a-z])|@:\d+,\d+:@\]/g, '');
+    let line = input
+      // Remove escape sequences
+      .replace(/\\.*$/, '')
+      // Fix extraneous hint whitespace
+      .replace(/\(\s/g, '(')
+      // Enclose card names
+      .replace(/@(\[|[a-z])/g, '[')
+      .replace(/@:\d+,\d+:@\]/g, ']');
 
-    log += `${line}\n`;
+    // Truncate player character sequences
+    if (/Turn \d+:\s/.test(line)) {
+      const [front, rest] = line.split(/:\s/);
+
+      const activePlayer = usernames.find(username => rest.includes(username));
+
+      line = `${front}: ${activePlayer}`;
+    }
+
+    // Early return for empty lines
+    if (!line || line === '') return log;
+
+    // Append line to log output
+    log += `${line}.\n`;
 
     return log;
   }, '');
@@ -138,7 +156,7 @@ export const parseMatch = async filePath => {
 /**
  * Reads properties from XML parent
  * @param {HTMLElement} parent XML parent to parse
- * @param {string} selector XML property to select
+ * @param {String} selector XML property to select
  */
 export const parse = (parent, selector) => {
   const element = parent.querySelector(`${selector} *[IsSet=true] Value`);
@@ -148,7 +166,7 @@ export const parse = (parent, selector) => {
 
 /**
  * Syncs match data with RecentFilters.xml
- * @param {{ id: string, filePath: string }} matchLog Parsed match data
+ * @param {{ id: String, filePath: String }} matchLog Parsed match data
  * @param {Number} [matchIndex] Match index to validate in recentFilters. Default is `0`.
  */
 export const validateMatch = async (matchLog, matchIndex = 0) => {
@@ -164,7 +182,9 @@ export const validateMatch = async (matchLog, matchIndex = 0) => {
   const xmlDoc = new JSDOM(xml, { contentType: 'text/xml' }).window.document;
 
   // Get match context
-  const match = Array.from(xmlDoc.getElementsByTagName('PersistedFilter'))[matchIndex];
+  const match = Array.from(xmlDoc.getElementsByTagName('PersistedFilter')).reverse()[
+    matchIndex
+  ];
   if (!match) return matchLog;
 
   // Parse tournament props
@@ -178,6 +198,10 @@ export const validateMatch = async (matchLog, matchIndex = 0) => {
   const formatType = parse(match, 'DeckCreationStyle');
   const tournamentType = parse(match, 'TournamentStructureValue');
 
+  // Parse event props
+  const { IsAvailable } = match.querySelector('TournamentStructureValue').attributes;
+  const premier = IsAvailable?.value === 'true';
+
   return {
     name,
     level,
@@ -185,6 +209,7 @@ export const validateMatch = async (matchLog, matchIndex = 0) => {
     format,
     formatType,
     tournamentType,
+    premier,
     ...matchLog,
   };
 };

@@ -13,7 +13,7 @@ export const fetchMatches = (files, callback) => {
     worker.onmessage = ({ data }) => {
       worker.terminate();
 
-      if (callback && data) callback(data);
+      callback(data);
     };
 
     worker.postMessage(file);

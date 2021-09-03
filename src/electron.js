@@ -1,4 +1,4 @@
-const { BrowserWindow, app, Tray, Menu } = require('electron');
+const { BrowserWindow, app, Tray, Menu, shell } = require('electron');
 const { format } = require('url');
 const { join } = require('path');
 const { sync } = require('glob');
@@ -102,6 +102,12 @@ app.on('ready', () => {
         click: () => {
           handleMatchSync();
         },
+      },
+      {
+        label: 'Open MTGO folder',
+        click: () => {
+          shell.openPath(PATH);
+        }
       },
       { label: 'Separator', type: 'separator' },
       {
